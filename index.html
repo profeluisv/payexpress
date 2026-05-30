@@ -446,7 +446,7 @@
                   <h1 style={{ fontSize: 28, fontWeight: 700, color: "#111827", margin: 0, letterSpacing: "-0.02em" }}>Resumen de Pagos</h1>
                   <p style={{ color: "#6B7280", fontSize: 15, margin: "6px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 28 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; marginBottom: 28px;" }}>
                   {[{ k: "overdue", label: "Vencidos", icon: "⚠️", accent: "#EF4444" }, { k: "pending", label: "Pendientes", icon: "⏳", accent: "#F59E0B" }, { k: "notified", label: "Notificados", icon: "📨", accent: "#3B82F6" }, { k: "paid", label: "Pagados", icon: "✅", accent: "#10B981" }].map(({ k, label, icon, accent }) => (
                     <div key={k} style={{ ...S.card, padding: "20px 22px" }}>
                       <div style={{ fontSize: 24, marginBottom: 8 }}>{icon}</div>
@@ -755,10 +755,16 @@
 
               {payStep === 2 && (
                 <div>
-                  <p style={{ fontSize: 14, color: "#4B5563", marginBottom: 18 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago.</p>
-                  
+                  <p style={{ fontSize: 14, color: "#4B5563", marginBottom: 18 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago de tu servicio.</p>
+
                   <Field label="Código de Referencia Bancaria">
-                    <input type="text" placeholder="Ej. REF-983172" value={payRef} onChange={e => setPayRef(e.target.value)} style={S.input} />
+                    <input 
+                      type="text" 
+                      placeholder="Ej. REF-983172" 
+                      value={payRef} 
+                      onChange={e => setPayRef(e.target.value)} 
+                      style={S.input} 
+                    />
                   </Field>
                   <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                     <button onClick={() => setPayStep(1)} style={{ ...S.btn("#F3F4F6", "#4B5563"), flex: 1 }}>Atrás</button>
