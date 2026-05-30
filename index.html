@@ -521,6 +521,10 @@
           ? `• *Comisión (${commission.label})*: ${fmtBs(commAmtBs)} (~${fmtUSD(commAmtUSD)})\n• *Total enviado*: ${fmtBs(totalAmtBs)} (~${fmtUSD(totalAmtUSD)})\n`
           : "";
 
+        const notesLine = payModal.notes
+          ? `\n*Instrucciones de Pago:*\n${payModal.notes}\n`
+          : "";
+
         const textTemplate =
           `*Hola PayExpress!*\n\n` +
           `Acabo de registrar el pago de mi servicio:\n\n` +
@@ -528,8 +532,9 @@
           `• *Monto*: ${fmtBs(payModal.amountBs)} (~${fmtUSD(amtUSD)})\n` +
           commLine +
           `• *Método*: ${pm.label}\n` +
-          `• *Referencia*: ${payRef}\n\n` +
-          `Les adjunto el capture del pago realizado por este medio.`;
+          `• *Referencia*: ${payRef}\n` +
+          notesLine +
+          `\nLes adjunto el capture del pago realizado por este medio.`;
 
         const waUrl = `https://wa.me/584126780566?text=${encodeURIComponent(textTemplate)}`;
         window.open(waUrl, "_blank");
@@ -925,7 +930,7 @@
                 <Field label="Monto mensual base (Bs.)"><input type="number" placeholder="Monto en Bs." value={newSvc.amountBs} onChange={e => setNewSvc({ ...newSvc, amountBs: e.target.value })} style={S.input} /></Field>
               </div>
               <Field label="Canal de Pago Preferido"><select value={newSvc.method} onChange={e => setNewSvc({ ...newSvc, method: e.target.value })} style={S.input}>{PAY_METHODS.map(p => <option key={p.id} value={p.id}>{p.flag} {p.label}</option>)}</select></Field>
-              <Field label="Detalles opcionales (Contrato, medidor...)"><textarea rows="2" placeholder="Ej. Apto 3B, Torre A" value={newSvc.notes} onChange={e => setNewSvc({ ...newSvc, notes: e.target.value })} style={{ ...S.input, resize: "none" }} /></Field>
+              <Field label="Instrucciones de Pago (Banco, N° de Cuenta, Beneficiario, RIF...)"><textarea rows="2" placeholder="Ej. Banco Provincial, Cuenta: 0108-0123456789-000, RIF J-0123456787-9" value={newSvc.notes} onChange={e => setNewSvc({ ...newSvc, notes: e.target.value })} style={{ ...S.input, resize: "none" }} /></Field>
               <button onClick={addService} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 10 }}>Agregar Servicio</button>
             </Modal>
           )}
