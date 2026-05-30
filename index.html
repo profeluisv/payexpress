@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0A0C1A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>PayExpress – BCV Dinámico</title>
+  <title>PayExpress – BCV - Tipo de Cambio de Referencia</title>
 
   <!-- Precargas DNS y conexiones tempranas -->
   <link rel="dns-prefetch" href="https://unpkg.com">
@@ -20,10 +20,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
-  <!-- Scripts con defer para no bloquear -->
-  <script defer src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Cargamos las librerías síncronas para asegurar la previsualización en Vercel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -222,9 +222,9 @@
       };
 
       const [rates, setRates] = React.useState(getStoredRates() || {
-        USD: 554.42,
-        EUR: 645.67,
-        fechaValor: "BCV Oficial (Sincronización Inicial)",
+        USD: 0,
+        EUR: 0,
+        fechaValor: "Conectando al BCV...",
         fechaPublicacion: ""
       });
       const [loading, setLoading] = React.useState(true);
@@ -337,12 +337,12 @@
 
       const handleCalcBsChange = (val) => {
         setCalcBs(val);
-        if (!val || isNaN(val)) setCalcUsd("");
+        if (!val || isNaN(val) || currentRates.USD === 0) setCalcUsd("");
         else setCalcUsd((parseFloat(val) / currentRates.USD).toFixed(2));
       };
       const handleCalcUsdChange = (val) => {
         setCalcUsd(val);
-        if (!val || isNaN(val)) setCalcBs("");
+        if (!val || isNaN(val) || currentRates.USD === 0) setCalcBs("");
         else setCalcBs((parseFloat(val) * currentRates.USD).toFixed(2));
       };
 
@@ -378,7 +378,6 @@
         }
       }
 
-      // ─── NOTIFICAR PAGO – NÚMERO FIJO 584126780566 ───
       function notifyPay(svcId) {
         if (!payRef.trim()) { notify("Ingresa la referencia", "error"); return; }
         
@@ -393,7 +392,6 @@
           `• *Referencia*: ${payRef}\n\n` +
           `Les adjunto el capture del pago realizado por este medio.`;
 
-        // ⚡ NÚMERO DIRECTO, SIN VARIABLES
         const waUrl = `https://wa.me/584126780566?text=${encodeURIComponent(textTemplate)}`;
         window.open(waUrl, "_blank");
         notify("Redirigiendo a WhatsApp...");
@@ -406,7 +404,7 @@
       }
 
       const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
-      const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
+      const amtUSD = payModal && currentRates.USD > 0 ? payModal.amountBs / currentRates.USD : 0;
 
       const filteredServices = services.filter(s => {
         const matchesStatus = filterStatus === "all" || s.status === filterStatus;
@@ -420,7 +418,7 @@
 
           <header>
             <div style={{ background: "#0D0F1C", padding: "0 32px" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexWrap: "wrap", gap: 8 }}>
+              <div className="header-content" style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexWrap: "wrap", gap: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
                   <div>
@@ -428,9 +426,9 @@
                     <div style={{ fontSize: 9, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 1 }}>Pagos · Venezuela</div>
                   </div>
                 </div>
-                <nav style={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                <nav className="nav-menu" style={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                   {[["dashboard", "Dashboard"], ["calendar", "Calendario"], ["services", "Servicios"], ["rates", "Tasas BCV"]].map(([id, label]) => (
-                    <button key={id} className="nav-btn" onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
+                    <button key={id} className={`nav-btn ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
                   ))}
                 </nav>
               </div>
@@ -456,11 +454,11 @@
                     
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ color: "#4B5563" }}>🇺🇸 USD</span>
-                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 14 }}>{currentRates.USD.toFixed(2)} Bs.</span>
+                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 14 }}>{currentRates.USD > 0 ? currentRates.USD.toFixed(2) : "..."} Bs.</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ color: "#4B5563" }}>🇪🇺 EUR</span>
-                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 14 }}>{currentRates.EUR.toFixed(2)} Bs.</span>
+                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 14 }}>{currentRates.EUR > 0 ? currentRates.EUR.toFixed(2) : "..."} Bs.</span>
                     </div>
                     
                     <span style={{ color: "#9CA3AF", fontSize: 11 }}>{currentRates.fechaValor}</span>
@@ -475,7 +473,7 @@
             </div>
           </header>
 
-          <main style={{ maxWidth: 1200, margin: "0 auto", padding: "36px 32px" }}>
+          <main className="main-container">
             {/* ─── DASHBOARD ─── */}
             {tab === "dashboard" && (
               <div>
@@ -483,12 +481,12 @@
                   <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Resumen de Pagos</h1>
                   <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
                 </div>
-                <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
+                <div className="stats-grid">
                   {[{ k: "overdue", label: "Vencidos", icon: "⚠️", accent: "#EF4444" }, { k: "pending", label: "Pendientes", icon: "⏳", accent: "#F59E0B" }, { k: "notified", label: "Notificados", icon: "📨", accent: "#3B82F6" }, { k: "paid", label: "Pagados", icon: "✅", accent: "#10B981" }].map(({ k, label, icon, accent }) => (
-                    <div key={k} style={{ ...S.card, padding: "18px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div key={k} className="card" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       <div style={{ fontSize: 22 }}>{icon}</div>
                       <div style={{ fontSize: 32, fontWeight: 700, color: accent, lineHeight: 1 }}>{stats[k]}</div>
-                      <div style={{ fontSize: 12, color: "#9CA3AF" }}>{label}</div>
+                      <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>{label}</div>
                     </div>
                   ))}
                 </div>
@@ -497,20 +495,20 @@
                     <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase", marginBottom: 8, fontWeight: 600 }}>Total deuda pendiente de pago</div>
                     <div className="total-debt-value" style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 18 }}>{fmtBs(totalDebt)}</div>
                     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                      {[{ label: "Equivalente USD", val: fmtUSD(totalDebt / currentRates.USD), color: "#34D399" }, { label: "Equivalente EUR", val: fmtEUR(totalDebt / currentRates.EUR), color: "#60A5FA" }].map(x => (
-                        <div key={x.label} style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 20px", border: "1px solid rgba(255,255,255,.08)" }}>
+                      {[{ label: "Equivalente USD", val: currentRates.USD > 0 ? fmtUSD(totalDebt / currentRates.USD) : "...", color: "#34D399" }, { label: "Equivalente EUR", val: currentRates.EUR > 0 ? fmtEUR(totalDebt / currentRates.EUR) : "...", color: "#60A5FA" }].map(x => (
+                        <div key={x.label} style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "14px 22px", border: "1px solid rgba(255,255,255,.08)" }}>
                           <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>{x.label}</div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: x.color }}>{x.val}</div>
+                          <div style={{ fontSize: 26, fontWeight: 700, color: x.color }}>{x.val}</div>
                         </div>
                       ))}
-                      <div style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 20px", border: "1px solid rgba(255,255,255,.08)" }}>
-                        <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Tasa actual</div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#9CA3AF" }}>1 USD = {currentRates.USD.toFixed(2)} Bs.</div>
+                      <div style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "14px 22px", border: "1px solid rgba(255,255,255,.08)" }}>
+                        <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Tasa actual</div>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: "#9CA3AF" }}>1 USD = {currentRates.USD.toFixed(2)} Bs.</div>
                       </div>
                     </div>
                   </div>
                 )}
-                <div style={S.card}>
+                <div className="card" style={{ padding: 0 }}>
                   <div style={{ padding: "16px 22px 12px", borderBottom: "1px solid #1F2937", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
                     <div style={{ fontWeight: 700, fontSize: 17, color: "#fff" }}>Todos los servicios</div>
                     <button onClick={() => setAddModal(true)} style={S.btn("#4F46E5")}>+ Agregar servicio</button>
@@ -528,13 +526,13 @@
                         </div>
                         <div style={{ textAlign: "right", minWidth: 100 }}>
                           <div style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>{fmtBs(s.amountBs)}</div>
-                          <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>{fmtUSD(s.amountBs / currentRates.USD)} · {fmtEUR(s.amountBs / currentRates.EUR)}</div>
+                          <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>{currentRates.USD > 0 ? fmtUSD(s.amountBs / currentRates.USD) : "..."} · {currentRates.EUR > 0 ? fmtEUR(s.amountBs / currentRates.EUR) : "..."}</div>
                         </div>
                         <Badge status={s.status} />
                         <div style={{ display: "flex", gap: 8 }}>
-                          {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>}
-                          {s.status === "notified" && <button onClick={() => confirmPaid(s)} style={S.btn("#059669")}>Marcar pagado</button>}
-                          {s.status === "paid" && <button onClick={() => setReceiptModal(s)} style={S.btn("#6B7280")}>Ver recibo</button>}
+                          {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={{ ...S.btn("#4F46E5"), padding: "8px 16px" }}>Pagar</button>}
+                          {s.status === "notified" && <button onClick={() => confirmPaid(s)} style={{ ...S.btn("#059669"), padding: "8px 16px" }}>Marcar pagado</button>}
+                          {s.status === "paid" && <button onClick={() => setReceiptModal(s)} style={{ ...S.btn("#6B7280"), padding: "8px 16px" }}>Ver recibo</button>}
                         </div>
                       </div>
                     );
@@ -557,8 +555,8 @@
                     <button onClick={handleNextMonth} style={{ ...S.btn("#1F2937", "#9CA3AF"), border: "1px solid #374151", padding: "8px 14px" }}>Siguiente &rarr;</button>
                   </div>
                 </div>
-                <div className="calendar-layout" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "start" }}>
-                  <div style={{ ...S.card, padding: 22 }}>
+                <div className="calendar-layout">
+                  <div className="card" style={{ padding: 22 }}>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 10, textAlign: "center", fontWeight: 600, color: "#9CA3AF", fontSize: 12 }}>
                       {WEEKDAYS.map(w => <div key={w} style={{ padding: "8px 0" }}>{w}</div>)}
                     </div>
@@ -578,13 +576,13 @@
                       })}
                     </div>
                   </div>
-                  <div style={{ ...S.card, padding: 22, minHeight: 300 }}>
+                  <div className="card" style={{ padding: 22, minHeight: 300 }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 14 }}>{selDay ? `Día ${selDay} de ${MONTHS_FULL[calMonth]}` : "Selecciona un día"}</h3>
                     {selDay ? (svcForDay(selDay).length === 0 ? <div style={{ color: "#9CA3AF", fontSize: 13, textAlign: "center", padding: "36px 0" }}>No hay vencimientos programados.</div> :
                       svcForDay(selDay).map(s => {
                         const st = SERVICE_TYPES.find(t => t.id === s.type);
                         return (
-                          <div key={s.id} style={{ padding: "12px 0", borderBottom: "1px solid #1F2937" }}>
+                          <div key={s.id} style={{ padding: "14px 0", borderBottom: "1px solid #1F2937" }}>
                             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                               <span style={{ fontSize: 18 }}>{st?.icon}</span>
                               <div style={{ flex: 1 }}>
@@ -622,7 +620,7 @@
                     <option value="paid">Pagados</option>
                   </select>
                 </div>
-                <div style={S.card}>
+                <div className="card" style={{ padding: 0 }}>
                   {filteredServices.length === 0 ? <div style={{ padding: "40px 22px", textAlign: "center", color: "#9CA3AF" }}>Sin elementos de servicios registrados.</div> :
                     filteredServices.map(s => {
                       const st = SERVICE_TYPES.find(t => t.id === s.type);
@@ -641,7 +639,9 @@
                           <Badge status={s.status} />
                           <div style={{ display: "flex", gap: 8 }}>
                             <button onClick={() => deleteService(s.id)} style={S.btn("#FEE2E2", "#EF4444")}>Eliminar</button>
-                            {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>}
+                            {(s.status === "pending" || s.status === "overdue") && (
+                              <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>
+                            )}
                           </div>
                         </div>
                       );
@@ -658,9 +658,9 @@
                   <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Indicadores cambiarios</h1>
                   <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Tasas oficiales de referencia en tiempo real.</p>
                 </div>
-                <div className="rates-layout" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "start" }}>
-                  <div style={{ ...S.card, padding: 26 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 18 }}>Valores Sincronizados</h3>
+                <div className="calculator-layout">
+                  <div className="card" style={{ padding: 26 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Valores Sincronizados</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #1F2937" }}><span style={{ color: "#9CA3AF", fontWeight: 500 }}>Dólar BCV (USD)</span><strong style={{ color: "#10B981", fontSize: 16 }}>{currentRates.USD.toFixed(2)} Bs.</strong></div>
                       <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #1F2937" }}><span style={{ color: "#9CA3AF", fontWeight: 500 }}>Euro BCV (EUR)</span><strong style={{ color: "#3B82F6", fontSize: 16 }}>{currentRates.EUR.toFixed(2)} Bs.</strong></div>
@@ -668,8 +668,8 @@
                     </div>
                     <button onClick={refetch} disabled={loading} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 22 }}>{loading ? "Sincronizando..." : "Verificar tasas ahora"}</button>
                   </div>
-                  <div style={{ ...S.card, padding: 26 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 18 }}>Calculadora Conversora</h3>
+                  <div className="card" style={{ padding: 26 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Calculadora Conversora</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                       <Field label="Monto en Bolívares (Bs.)"><input type="number" placeholder="Introduce el monto en Bs." value={calcBs} onChange={e => handleCalcBsChange(e.target.value)} style={S.input} /></Field>
                       <Field label="Monto en Dólares (USD)"><input type="number" placeholder="Introduce el monto en USD" value={calcUsd} onChange={e => handleCalcUsdChange(e.target.value)} style={S.input} /></Field>
@@ -723,10 +723,10 @@
                 </div>
               )}
               {payStep === 3 && (
-                <div style={{ textAlign: "center", padding: "14px 0" }}>
+                <div style={{ textAlign: "center", padding: "16px 0" }}>
                   <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}><span style={{ color: "#059669", fontSize: 28, fontWeight: "bold" }}>✓</span></div>
                   <h3 style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>Reporte Registrado</h3>
-                  <p style={{ color: "#9CA3AF", fontSize: 13, margin: "8px 0 22px" }}>El soporte ha sido registrado para su procesamiento.</p>
+                  <p style={{ color: "#9CA3AF", fontSize: 13, margin: "8px 0 24px" }}>El soporte ha sido registrado para su procesamiento.</p>
                   <button onClick={() => { setPayModal(null); setPayStep(1); setPayRef(""); }} style={{ ...S.btn("#111827"), width: "100%" }}>Cerrar</button>
                 </div>
               )}
