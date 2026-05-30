@@ -8,13 +8,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>PayExpress – BCV - Tipo de Cambio de Referencia</title>
 
-  <!-- ── Open Graph / Vercel Screenshot ── -->
   <meta property="og:title" content="PayExpress – Pagos Venezuela">
   <meta property="og:description" content="Gestiona tus pagos de condominios y servicios públicos en Venezuela desde cualquier parte del mundo.">
   <meta property="og:type" content="website">
   <meta name="description" content="PayExpress – Gestiona pagos de servicios en Venezuela con tasas BCV en tiempo real. Zelle, Zinli, PayPal y Binance Pay.">
 
-  <!-- Precargas DNS y conexiones tempranas -->
   <link rel="dns-prefetch" href="https://unpkg.com">
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link rel="dns-prefetch" href="https://fonts.gstatic.com">
@@ -22,11 +20,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- Fuente con carga asíncrona -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
-  <!-- Scripts con defer para no bloquear -->
   <script defer src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -76,7 +72,6 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
 
-    /* ── STATIC SHELL (visible antes de que React monte) ── */
     #app-shell {
       display: flex;
       flex-direction: column;
@@ -92,9 +87,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    #app-shell .shell-logo {
-      display: flex; align-items: center; gap: 10px;
-    }
+    #app-shell .shell-logo { display: flex; align-items: center; gap: 10px; }
     #app-shell .shell-logo-icon {
       width: 42px; height: 42px; border-radius: 12px;
       background: linear-gradient(135deg,#4F46E5,#7C3AED);
@@ -108,48 +101,22 @@
       background: transparent; color: #9CA3AF; border: none; border-radius: 8px;
       padding: 8px 14px; font-size: 13px; cursor: default;
     }
-    #app-shell .shell-nav-btn.active {
-      background: rgba(79,70,229,.9); color: #fff; font-weight: 600;
-    }
-    #app-shell .shell-ticker {
-      background: #0A0C17; border-bottom: 1px solid #1F2937;
-      padding: 10px 24px; font-size: 12px;
-    }
-    #app-shell .shell-main {
-      max-width: 1200px; margin: 0 auto; padding: 36px 32px; width: 100%;
-    }
+    #app-shell .shell-nav-btn.active { background: rgba(79,70,229,.9); color: #fff; font-weight: 600; }
+    #app-shell .shell-ticker { background: #0A0C17; border-bottom: 1px solid #1F2937; padding: 10px 24px; font-size: 12px; }
+    #app-shell .shell-main { max-width: 1200px; margin: 0 auto; padding: 36px 32px; width: 100%; }
     #app-shell .shell-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
     #app-shell .shell-subtitle { color: #9CA3AF; font-size: 14px; margin-top: 4px; }
-    #app-shell .shell-cards {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 24px 0;
-    }
-    #app-shell .shell-card {
-      background: #121626; border-radius: 18px; border: 1px solid #1F2937;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2); padding: 18px 20px;
-    }
+    #app-shell .shell-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 24px 0; }
+    #app-shell .shell-card { background: #121626; border-radius: 18px; border: 1px solid #1F2937; box-shadow: 0 2px 8px rgba(0,0,0,0.2); padding: 18px 20px; }
     #app-shell .shell-card-icon { font-size: 22px; margin-bottom: 6px; }
     #app-shell .shell-card-val { font-size: 32px; font-weight: 700; line-height: 1; }
     #app-shell .shell-card-label { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
-    #app-shell .shell-table {
-      background: #121626; border-radius: 18px; border: 1px solid #1F2937;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    #app-shell .shell-table-header {
-      padding: 16px 22px 12px; border-bottom: 1px solid #1F2937;
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    #app-shell .shell-table { background: #121626; border-radius: 18px; border: 1px solid #1F2937; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    #app-shell .shell-table-header { padding: 16px 22px 12px; border-bottom: 1px solid #1F2937; display: flex; justify-content: space-between; align-items: center; }
     #app-shell .shell-table-title { font-weight: 700; font-size: 17px; color: #fff; }
-    #app-shell .shell-add-btn {
-      background: #4F46E5; color: #fff; border: none; border-radius: 12px;
-      padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: default;
-    }
-    #app-shell .shell-empty {
-      padding: 40px 22px; text-align: center; color: #9CA3AF;
-    }
-    /* Shell se oculta via JS cuando React monta (ver useEffect en componente) */
-    /* Este bloque intencialmente vacío – no usar selector CSS frágil */
+    #app-shell .shell-add-btn { background: #4F46E5; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: default; }
+    #app-shell .shell-empty { padding: 40px 22px; text-align: center; color: #9CA3AF; }
 
-    /* Ticker de tasas: horizontal en desktop, columna en móvil */
     .rates-ticker { display: flex; align-items: center; gap: 20px; }
 
     @media (max-width: 768px) {
@@ -163,11 +130,7 @@
       .calendar-layout { grid-template-columns: 1fr !important; gap: 16px !important; }
       .dashboard-header { font-size: 22px !important; }
       .total-debt-value { font-size: 28px !important; }
-
-      /* Tasas en columna vertical en móvil */
       .rates-ticker { flex-direction: column; align-items: flex-start; gap: 4px; }
-
-      /* Shell mobile */
       #app-shell .shell-header { padding: 0 16px; }
       #app-shell .shell-nav { display: none; }
       #app-shell .shell-cards { grid-template-columns: repeat(2,1fr); }
@@ -186,7 +149,6 @@
 <body>
   <div id="root"></div>
 
-  <!-- ── STATIC SHELL: visible de inmediato, oculto cuando React monta ── -->
   <div id="app-shell">
     <div class="shell-header">
       <div class="shell-logo">
@@ -201,6 +163,7 @@
         <div class="shell-nav-btn">Calendario</div>
         <div class="shell-nav-btn">Servicios</div>
         <div class="shell-nav-btn">Tasas BCV</div>
+        <div class="shell-nav-btn">Comisiones</div>
       </div>
     </div>
     <div class="shell-ticker">
@@ -222,26 +185,10 @@
         <div class="shell-subtitle">Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</div>
       </div>
       <div class="shell-cards">
-        <div class="shell-card">
-          <div class="shell-card-icon">⚠️</div>
-          <div class="shell-card-val" style="color:#EF4444">0</div>
-          <div class="shell-card-label">Vencidos</div>
-        </div>
-        <div class="shell-card">
-          <div class="shell-card-icon">⏳</div>
-          <div class="shell-card-val" style="color:#F59E0B">0</div>
-          <div class="shell-card-label">Pendientes</div>
-        </div>
-        <div class="shell-card">
-          <div class="shell-card-icon">📨</div>
-          <div class="shell-card-val" style="color:#3B82F6">0</div>
-          <div class="shell-card-label">Notificados</div>
-        </div>
-        <div class="shell-card">
-          <div class="shell-card-icon">✅</div>
-          <div class="shell-card-val" style="color:#10B981">0</div>
-          <div class="shell-card-label">Pagados</div>
-        </div>
+        <div class="shell-card"><div class="shell-card-icon">⚠️</div><div class="shell-card-val" style="color:#EF4444">0</div><div class="shell-card-label">Vencidos</div></div>
+        <div class="shell-card"><div class="shell-card-icon">⏳</div><div class="shell-card-val" style="color:#F59E0B">0</div><div class="shell-card-label">Pendientes</div></div>
+        <div class="shell-card"><div class="shell-card-icon">📨</div><div class="shell-card-val" style="color:#3B82F6">0</div><div class="shell-card-label">Notificados</div></div>
+        <div class="shell-card"><div class="shell-card-icon">✅</div><div class="shell-card-val" style="color:#10B981">0</div><div class="shell-card-label">Pagados</div></div>
       </div>
       <div class="shell-table">
         <div class="shell-table-header">
@@ -260,7 +207,6 @@
     </footer>
   </div>
 
-  <!-- ── Ocultar shell en cuanto React llene el #root ── -->
   <script>
     (function() {
       var root = document.getElementById('root');
@@ -279,10 +225,18 @@
   <script type="text/babel">
     const { useState, useEffect, useCallback } = React;
 
-    // ─── API DE TASAS ──────────────────────────────────────
     const PYTHONANYWHERE_API_URL = "https://profeluisv.eu.pythonanywhere.com/api/bcv-rates";
 
-    // ─── CONFIGURACIONES DE LA APP ─────────────────────────
+    // ─── COMISIONES POR CANAL ───────────────────────────────
+    // Base PayExpress: 2%
+    // PayPal agrega 3.5% adicional (costo de la red PayPal) → total 5.5%
+    const COMMISSIONS = {
+      zelle:   { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
+      zinli:   { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
+      paypal:  { base: 0.02, extra: 0.035, total: 0.055, label: "5,5%",      detail: "2% PayExpress + 3,5% red PayPal" },
+      binance: { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
+    };
+
     const PAY_METHODS = [
       { id: "zelle",   label: "Zelle",        icon: "Z",  color: "#8B5CF6", bg: "#2E1A47", account: "pagos@payexpress.com",  flag: "🇺🇸" },
       { id: "zinli",   label: "Zinli",        icon: "Zi", color: "#A78BFA", bg: "#2A1F45", account: "@payexpress_ve",        flag: "🟣" },
@@ -363,8 +317,7 @@
 
     function Modal({ title, onClose, children, width = 560 }) {
       return (
-        <div onClick={e => e.target === e.currentTarget && onClose()}
-          className="modal-overlay">
+        <div onClick={e => e.target === e.currentTarget && onClose()} className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: width }}>
             <div style={{ position: "sticky", top: 0, background: "#121626", zIndex: 1,
               display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -397,45 +350,35 @@
     function useBCVRates() {
       const getStoredRates = () => {
         const saved = localStorage.getItem("payexpress_cached_rates_v4");
-        if (saved) {
-          try { return JSON.parse(saved); } catch (e) { return null; }
-        }
+        if (saved) { try { return JSON.parse(saved); } catch (e) { return null; } }
         return null;
       };
 
       const [rates, setRates] = React.useState(getStoredRates() || {
-        USD: 554.42,
-        EUR: 645.67,
-        fechaValor: "BCV Oficial (Sincronización Inicial)",
-        fechaPublicacion: ""
+        USD: 554.42, EUR: 645.67,
+        fechaValor: "BCV Oficial (Sincronización Inicial)", fechaPublicacion: ""
       });
       const [loading, setLoading] = React.useState(true);
-      const [error, setError] = React.useState(null);
+      const [error, setError]     = React.useState(null);
 
       const fetchRates = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
+        setLoading(true); setError(null);
         try {
           const response = await fetch(PYTHONANYWHERE_API_URL);
           if (response.ok) {
             const data = await response.json();
             if (data && data.rateUsd && data.rateEur) {
               const freshRates = {
-                USD: data.rateUsd,
-                EUR: data.rateEur,
+                USD: data.rateUsd, EUR: data.rateEur,
                 fechaValor: `Sincronizado de BCV (${new Date(data.lastUpdated).toLocaleDateString("es-VE")})`,
                 fechaPublicacion: new Date(data.lastUpdated).toLocaleTimeString("es-VE")
               };
               setRates(freshRates);
               localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(freshRates));
-              setLoading(false);
-              return;
+              setLoading(false); return;
             }
           }
-        } catch (err) {
-          console.warn("Fallo en sincronización.");
-        }
+        } catch (err) { console.warn("Fallo en sincronización."); }
         setLoading(false);
       }, []);
 
@@ -450,12 +393,10 @@
 
     function PayExpress() {
       const [tab, setTab] = useState("dashboard");
-      
+
       const [services, setServices] = useState(() => {
         const saved = localStorage.getItem("payexpress_user_services");
-        if (saved) {
-          try { return JSON.parse(saved); } catch (e) { return []; }
-        }
+        if (saved) { try { return JSON.parse(saved); } catch (e) { return []; } }
         return [];
       });
 
@@ -469,8 +410,8 @@
       const [calMonth, setCalMonth] = useState(new Date().getMonth());
       const [calYear, setCalYear]   = useState(new Date().getFullYear());
 
-      const [calcBs, setCalcBs]     = useState("");
-      const [calcUsd, setCalcUsd]   = useState("");
+      const [calcBs, setCalcBs]   = useState("");
+      const [calcUsd, setCalcUsd] = useState("");
       const [filterStatus, setFilterStatus] = useState("all");
       const [searchTerm, setSearchTerm]     = useState("");
       const [newSvc, setNewSvc]    = useState({ type: "condominio", name: "", dueDay: 5, amountBs: "", method: "zelle", notes: "" });
@@ -482,7 +423,6 @@
       const { rates, setRates, loading, error, refetch } = useBCVRates();
       const currentRates = rates;
 
-      // Ocultar shell estático cuando React monta
       useEffect(() => {
         const shell = document.getElementById("app-shell");
         if (shell) shell.style.display = "none";
@@ -537,10 +477,7 @@
       function saveManualRates() {
         const u = parseFloat(tempUsd);
         const e = parseFloat(tempEur);
-        if (isNaN(u) || isNaN(e) || u <= 0 || e <= 0) {
-          notify("Ingresa números mayores a cero", "error");
-          return;
-        }
+        if (isNaN(u) || isNaN(e) || u <= 0 || e <= 0) { notify("Ingresa números mayores a cero", "error"); return; }
         const updated = { USD: u, EUR: e, fechaValor: "Tasas manuales fijas", fechaPublicacion: new Date().toLocaleTimeString("es-VE") };
         setRates(updated);
         localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(updated));
@@ -552,7 +489,6 @@
         if (!newSvc.name.trim() || !newSvc.amountBs) { notify("Completa nombre y monto", "error"); return; }
         const d = parseInt(newSvc.dueDay);
         if (isNaN(d) || d < 1 || d > 31) { notify("Día inválido", "error"); return; }
-
         setServices(p => [...p, { ...newSvc, id: Date.now(), dueDay: d, amountBs: parseFloat(newSvc.amountBs), status: "pending" }]);
         setAddModal(false);
         setNewSvc({ type: "condominio", name: "", dueDay: 5, amountBs: "", method: "zelle", notes: "" });
@@ -566,22 +502,35 @@
         }
       }
 
-      // ─── NOTIFICAR PAGO – NÚMERO FIJO 584126780566 ───
+      // ─── COMISIÓN ACTIVA ───────────────────────────────────
+      const pm         = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
+      const commission = payModal ? COMMISSIONS[payModal.method] : null;
+      const amtUSD     = payModal ? payModal.amountBs / currentRates.USD : 0;
+      // Monto de comisión en Bs y USD
+      const commAmtBs  = payModal ? payModal.amountBs * (commission ? commission.total : 0) : 0;
+      const commAmtUSD = payModal ? amtUSD * (commission ? commission.total : 0) : 0;
+      const totalAmtBs = payModal ? payModal.amountBs + commAmtBs : 0;
+      const totalAmtUSD= payModal ? amtUSD + commAmtUSD : 0;
+
       function notifyPay(svcId) {
         if (!payRef.trim()) { notify("Ingresa la referencia", "error"); return; }
-        
         setServices(p => p.map(s => s.id === svcId ? { ...s, status: "notified", ref: payRef } : s));
         setPayStep(3);
-        
-        const textTemplate = `*Hola PayExpress!*\n\n` +
+
+        const commLine = commission && commission.total > 0
+          ? `• *Comisión (${commission.label})*: ${fmtBs(commAmtBs)} (~${fmtUSD(commAmtUSD)})\n• *Total enviado*: ${fmtBs(totalAmtBs)} (~${fmtUSD(totalAmtUSD)})\n`
+          : "";
+
+        const textTemplate =
+          `*Hola PayExpress!*\n\n` +
           `Acabo de registrar el pago de mi servicio:\n\n` +
           `• *Servicio*: ${payModal.name}\n` +
           `• *Monto*: ${fmtBs(payModal.amountBs)} (~${fmtUSD(amtUSD)})\n` +
+          commLine +
           `• *Método*: ${pm.label}\n` +
           `• *Referencia*: ${payRef}\n\n` +
           `Les adjunto el capture del pago realizado por este medio.`;
 
-        // ⚡ NÚMERO DIRECTO, SIN VARIABLES
         const waUrl = `https://wa.me/584126780566?text=${encodeURIComponent(textTemplate)}`;
         window.open(waUrl, "_blank");
         notify("Redirigiendo a WhatsApp...");
@@ -593,14 +542,19 @@
         setPayModal(null); setPayStep(1); setPayRef("");
       }
 
-      const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
-      const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
-
       const filteredServices = services.filter(s => {
         const matchesStatus = filterStatus === "all" || s.status === filterStatus;
         const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesStatus && matchesSearch;
       });
+
+      // ─── SECCIÓN COMISIONES ────────────────────────────────
+      const commissionsInfo = [
+        { id: "zelle",   label: "Zelle",       flag: "🇺🇸", color: "#8B5CF6", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
+        { id: "zinli",   label: "Zinli",       flag: "🟣", color: "#A78BFA", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
+        { id: "paypal",  label: "PayPal",      flag: "🌐", color: "#3B82F6", pct: "5,5%",  breakdown: ["2% — Comisión PayExpress", "3,5% — Red PayPal"],     note: "PayPal aplica un cargo adicional por procesamiento internacional." },
+        { id: "binance", label: "Binance Pay", flag: "🟡", color: "#FBBF24", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
+      ];
 
       return (
         <div style={{ minHeight: "100vh", background: "#0A0C1A", fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -617,8 +571,11 @@
                   </div>
                 </div>
                 <nav style={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                  {[["dashboard", "Dashboard"], ["calendar", "Calendario"], ["services", "Servicios"], ["rates", "Tasas BCV"]].map(([id, label]) => (
-                    <button key={id} className="nav-btn" onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
+                  {[["dashboard","Dashboard"],["calendar","Calendario"],["services","Servicios"],["rates","Tasas BCV"],["commissions","Comisiones"]].map(([id, label]) => (
+                    <button key={id} className="nav-btn" onClick={() => setTab(id)}
+                      style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>
+                      {label}
+                    </button>
                   ))}
                 </nav>
               </div>
@@ -626,7 +583,6 @@
 
             <div style={{ background: "#0A0C17", borderBottom: "1px solid #1F2937", padding: "10px 24px" }}>
               <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-
                 {isEditingRates ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 12 }}>
                     <span style={{ color: "#9CA3AF", fontWeight: 600 }}>Ajustar tasas manualmente:</span>
@@ -639,7 +595,6 @@
                   </div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-                    {/* Bloque izquierdo: título + tasas */}
                     <div>
                       <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, paddingTop: 2 }}>
                         BCV Tasa de Cambio de Referencia
@@ -657,7 +612,6 @@
                         <span style={{ color: "#374151", fontSize: 11 }}>{currentRates.fechaValor}</span>
                       </div>
                     </div>
-                    {/* Bloque derecho: botones */}
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
                       <button onClick={() => { setTempUsd(currentRates.USD); setTempEur(currentRates.EUR); setIsEditingRates(true); }} style={{ background: "transparent", border: "1px solid #374151", borderRadius: 6, padding: "4px 10px", color: "#9CA3AF", cursor: "pointer", fontSize: 11 }}>
                         ✏️ Ajustar tasa
@@ -666,12 +620,12 @@
                     </div>
                   </div>
                 )}
-
               </div>
             </div>
           </header>
 
           <main style={{ maxWidth: 1200, margin: "0 auto", padding: "36px 32px" }}>
+
             {/* ─── DASHBOARD ─── */}
             {tab === "dashboard" && (
               <div>
@@ -874,9 +828,94 @@
                 </div>
               </div>
             )}
+
+            {/* ─── COMISIONES ─── */}
+            {tab === "commissions" && (
+              <div>
+                <div style={{ marginBottom: 28 }}>
+                  <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Comisiones por Canal de Pago</h1>
+                  <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Conoce la comisión aplicable según el método de pago que elijas.</p>
+                </div>
+
+                {/* Aviso informativo */}
+                <div style={{ background: "rgba(79,70,229,0.1)", border: "1px solid rgba(79,70,229,0.3)", borderRadius: 14, padding: "16px 20px", marginBottom: 24, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 20 }}>ℹ️</span>
+                  <div>
+                    <div style={{ fontWeight: 600, color: "#A5B4FC", fontSize: 14, marginBottom: 4 }}>¿Cómo se calcula la comisión?</div>
+                    <div style={{ color: "#9CA3AF", fontSize: 13, lineHeight: 1.6 }}>
+                      PayExpress aplica una comisión base de <strong style={{ color: "#fff" }}>2%</strong> sobre el monto del servicio por el procesamiento del pago. En el caso de PayPal, se suma adicionalmente el cargo de la red PayPal (<strong style={{ color: "#fff" }}>3,5%</strong>), resultando en un total de <strong style={{ color: "#fff" }}>5,5%</strong>.
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+                  {commissionsInfo.map(c => (
+                    <div key={c.id} style={{ ...S.card, padding: 24, position: "relative", overflow: "hidden" }}>
+                      {/* Acento de color en la esquina superior */}
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: c.color, borderRadius: "18px 18px 0 0" }} />
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                        <span style={{ fontSize: 26 }}>{c.flag}</span>
+                        <div>
+                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 16 }}>{c.label}</div>
+                          <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 1 }}>Canal de pago</div>
+                        </div>
+                        <div style={{ marginLeft: "auto", background: `${c.color}22`, border: `1px solid ${c.color}55`, borderRadius: 10, padding: "6px 14px" }}>
+                          <div style={{ fontSize: 22, fontWeight: 800, color: c.color, lineHeight: 1 }}>{c.pct}</div>
+                          <div style={{ fontSize: 9, color: "#9CA3AF", textAlign: "center", marginTop: 2, textTransform: "uppercase", letterSpacing: "0.06em" }}>comisión</div>
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: "1px solid #1F2937", paddingTop: 14 }}>
+                        <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Desglose</div>
+                        {c.breakdown.map((line, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontSize: 13, color: "#D1D5DB" }}>
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
+                            {line}
+                          </div>
+                        ))}
+                        <div style={{ marginTop: 12, fontSize: 12, color: "#6B7280", fontStyle: "italic", lineHeight: 1.5 }}>{c.note}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tabla resumen */}
+                <div style={{ ...S.card, marginTop: 24 }}>
+                  <div style={{ padding: "16px 22px 12px", borderBottom: "1px solid #1F2937" }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>Tabla Comparativa de Comisiones</div>
+                    <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>Ejemplo con un pago de 15.000,00 Bs.</div>
+                  </div>
+                  {commissionsInfo.map(c => {
+                    const exampleBs  = 15000;
+                    const commBs     = exampleBs * COMMISSIONS[c.id].total;
+                    const totalBs    = exampleBs + commBs;
+                    const totalUSD   = totalBs / currentRates.USD;
+                    return (
+                      <div key={c.id} style={{ padding: "14px 22px", borderBottom: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 20 }}>{c.flag}</span>
+                        <div style={{ flex: 1, minWidth: 100 }}>
+                          <div style={{ fontWeight: 600, color: "#fff", fontSize: 14 }}>{c.label}</div>
+                          <div style={{ color: "#9CA3AF", fontSize: 12 }}>Comisión: {c.pct}</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 12, color: "#9CA3AF" }}>Comisión sobre el monto</div>
+                          <div style={{ fontWeight: 600, color: "#F59E0B", fontSize: 14 }}>+ {fmtBs(commBs)}</div>
+                        </div>
+                        <div style={{ textAlign: "right", minWidth: 130 }}>
+                          <div style={{ fontSize: 12, color: "#9CA3AF" }}>Total a enviar</div>
+                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>{fmtBs(totalBs)}</div>
+                          <div style={{ fontSize: 11, color: "#34D399" }}>~ {fmtUSD(totalUSD)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </main>
 
-          {/* ─── MODALES ─── */}
+          {/* ─── MODAL AGREGAR ─── */}
           {addModal && (
             <Modal title="Agregar Servicio" onClose={() => setAddModal(false)}>
               <Field label="Clasificación"><select value={newSvc.type} onChange={e => setNewSvc({ ...newSvc, type: e.target.value })} style={S.input}>{SERVICE_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}</select></Field>
@@ -891,7 +930,8 @@
             </Modal>
           )}
 
-          {payModal && pm && (
+          {/* ─── MODAL PAGO ─── */}
+          {payModal && pm && commission && (
             <Modal title={`Emitir Pago: ${payModal.name}`} onClose={() => { setPayModal(null); setPayStep(1); setPayRef(""); }}>
               {payStep === 1 && (
                 <div>
@@ -900,16 +940,57 @@
                     <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "6px 0" }}>{pm.label} {pm.flag}</div>
                     <div style={{ fontSize: 14, fontFamily: "monospace", color: "#9CA3AF" }}>Cuenta destinataria:<br /><strong style={{ fontSize: 15, color: "#fff" }}>{pm.account}</strong></div>
                   </div>
-                  <div style={{ marginBottom: 18 }}>
-                    <span style={{ display: "block", color: "#9CA3AF", fontSize: 12, marginBottom: 4 }}>Total adeudado</span>
-                    <strong style={{ fontSize: 22, color: "#fff" }}>{fmtBs(payModal.amountBs)}</strong>
-                    <div style={{ display: "flex", gap: 8, marginTop: 6, fontSize: 13 }}><span style={{ color: "#10B981", fontWeight: 600 }}>Equivalente en divisas: {fmtUSD(amtUSD)}</span></div>
+
+                  {/* ── DETALLE DE MONTOS CON COMISIÓN ── */}
+                  <div style={{ background: "#0D0F1C", borderRadius: 12, padding: 16, marginBottom: 18, border: "1px solid #1E2235" }}>
+                    <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Desglose del pago</div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>Monto del servicio</span>
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{fmtBs(payModal.amountBs)}</span>
+                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>{fmtUSD(amtUSD)}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
+                      <div>
+                        <span style={{ color: "#9CA3AF", fontSize: 13 }}>Comisión ({commission.label})</span>
+                        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{commission.detail}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ color: "#F59E0B", fontWeight: 600, fontSize: 13 }}>+ {fmtBs(commAmtBs)}</span>
+                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>+ {fmtUSD(commAmtUSD)}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Total a enviar</span>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ color: "#10B981", fontWeight: 800, fontSize: 20 }}>{fmtBs(totalAmtBs)}</div>
+                        <div style={{ color: "#34D399", fontSize: 13, marginTop: 2 }}>~ {fmtUSD(totalAmtUSD)}</div>
+                      </div>
+                    </div>
                   </div>
+
                   <button onClick={() => setPayStep(2)} style={{ ...S.btn("#4F46E5"), width: "100%" }}>Declarar Soporte de Pago</button>
                 </div>
               )}
+
               {payStep === 2 && (
                 <div>
+                  {/* Resumen compacto en paso 2 */}
+                  <div style={{ background: "#0D0F1C", borderRadius: 10, padding: "12px 16px", marginBottom: 16, border: "1px solid #1E2235", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#9CA3AF" }}>Total a enviar vía {pm.label}</div>
+                      <div style={{ fontWeight: 700, color: "#10B981", fontSize: 18 }}>{fmtBs(totalAmtBs)}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 11, color: "#9CA3AF" }}>Incluye comisión {commission.label}</div>
+                      <div style={{ color: "#F59E0B", fontSize: 13, fontWeight: 600 }}>+ {fmtBs(commAmtBs)}</div>
+                    </div>
+                  </div>
+
                   <p style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 16 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago de tu servicio.</p>
                   <Field label="Código de Referencia Bancaria"><input type="text" placeholder="Ej. REF-983172" value={payRef} onChange={e => setPayRef(e.target.value)} style={S.input} /></Field>
                   <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
@@ -918,6 +999,7 @@
                   </div>
                 </div>
               )}
+
               {payStep === 3 && (
                 <div style={{ textAlign: "center", padding: "14px 0" }}>
                   <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}><span style={{ color: "#059669", fontSize: 28, fontWeight: "bold" }}>✓</span></div>
@@ -929,6 +1011,7 @@
             </Modal>
           )}
 
+          {/* ─── MODAL RECIBO ─── */}
           {receiptModal && (
             <Modal title="Verificación Electrónica" onClose={() => setReceiptModal(null)}>
               <div style={{ border: "2px dashed #374151", borderRadius: 16, padding: 22, background: "#161B30" }}>
