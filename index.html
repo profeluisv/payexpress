@@ -146,9 +146,8 @@
     #app-shell .shell-empty {
       padding: 40px 22px; text-align: center; color: #9CA3AF;
     }
-    /* Hide shell once React mounts */
-    #root:not(:empty) ~ #app-shell,
-    #root:not(:empty) + #app-shell { display: none !important; }
+    /* Shell se oculta via JS cuando React monta (ver useEffect en componente) */
+    /* Este bloque intencialmente vacío – no usar selector CSS frágil */
 
     /* Ticker de tasas: horizontal en desktop, columna en móvil */
     .rates-ticker { display: flex; align-items: center; gap: 20px; }
@@ -205,17 +204,15 @@
       </div>
     </div>
     <div class="shell-ticker">
-      <div>
-        <div style="font-size:10px;color:#6B7280;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">BCV Tasa de Cambio de Referencia</div>
-        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;color:#9CA3AF">🇺🇸 USD</span>
-            <span style="color:#34D399;font-weight:700;font-size:16px">— Bs.</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;color:#9CA3AF">🇪🇺 EUR</span>
-            <span style="color:#60A5FA;font-weight:700;font-size:16px">— Bs.</span>
-          </div>
+      <div style="font-size:10px;color:#6B7280;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;padding-top:2px">BCV Tasa de Cambio de Referencia</div>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:#9CA3AF">🇺🇸 USD</span>
+          <span style="color:#34D399;font-weight:700;font-size:16px">— Bs.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:#9CA3AF">🇪🇺 EUR</span>
+          <span style="color:#60A5FA;font-weight:700;font-size:16px">— Bs.</span>
         </div>
       </div>
     </div>
@@ -262,6 +259,22 @@
       </div>
     </footer>
   </div>
+
+  <!-- ── Ocultar shell en cuanto React llene el #root ── -->
+  <script>
+    (function() {
+      var root = document.getElementById('root');
+      var shell = document.getElementById('app-shell');
+      if (!root || !shell) return;
+      var obs = new MutationObserver(function() {
+        if (root.children.length > 0) {
+          shell.style.display = 'none';
+          obs.disconnect();
+        }
+      });
+      obs.observe(root, { childList: true });
+    })();
+  </script>
 
   <script type="text/babel">
     const { useState, useEffect, useCallback } = React;
@@ -628,7 +641,7 @@
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
                     {/* Bloque izquierdo: título + tasas */}
                     <div>
-                      <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>
+                      <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, paddingTop: 2 }}>
                         BCV Tasa de Cambio de Referencia
                         {loading && <span style={{ color: "#4B5563", marginLeft: 8, fontWeight: 400 }}>⏳ Sincronizando...</span>}
                       </div>
