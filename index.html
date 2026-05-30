@@ -23,9 +23,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
-  <script defer src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -207,7 +206,2563 @@
     </footer>
   </div>
 
+  
+
   <script>
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+const _React = React,
+  useState = _React.useState,
+  useEffect = _React.useEffect,
+  useCallback = _React.useCallback;
+const PYTHONANYWHERE_API_URL = "https://profeluisv.eu.pythonanywhere.com/api/bcv-rates";
+
+// ─── COMISIONES POR CANAL ───────────────────────────────
+// Base PayExpress: 2%
+// PayPal agrega 3.5% adicional (costo de la red PayPal) → total 5.5%
+const COMMISSIONS = {
+  zelle: {
+    base: 0.02,
+    extra: 0,
+    total: 0.02,
+    label: "2%",
+    detail: "Comisión PayExpress"
+  },
+  zinli: {
+    base: 0.02,
+    extra: 0,
+    total: 0.02,
+    label: "2%",
+    detail: "Comisión PayExpress"
+  },
+  paypal: {
+    base: 0.02,
+    extra: 0.035,
+    total: 0.055,
+    label: "5,5%",
+    detail: "2% PayExpress + 3,5% red PayPal"
+  },
+  binance: {
+    base: 0.02,
+    extra: 0,
+    total: 0.02,
+    label: "2%",
+    detail: "Comisión PayExpress"
+  }
+};
+const PAY_METHODS = [{
+  id: "zelle",
+  label: "Zelle",
+  icon: "Z",
+  color: "#8B5CF6",
+  bg: "#2E1A47",
+  account: "pagos@payexpress.com",
+  flag: "🇺🇸"
+}, {
+  id: "zinli",
+  label: "Zinli",
+  icon: "Zi",
+  color: "#A78BFA",
+  bg: "#2A1F45",
+  account: "@payexpress_ve",
+  flag: "🟣"
+}, {
+  id: "paypal",
+  label: "PayPal",
+  icon: "PP",
+  color: "#3B82F6",
+  bg: "#1E2A4A",
+  account: "pagos@payexpress.com",
+  flag: "🌐"
+}, {
+  id: "binance",
+  label: "Binance Pay",
+  icon: "Bn",
+  color: "#FBBF24",
+  bg: "#3D301A",
+  account: "PayExpressVE",
+  flag: "🟡"
+}];
+const SERVICE_TYPES = [{
+  id: "condominio",
+  label: "Condominio",
+  icon: "🏢"
+}, {
+  id: "electricidad",
+  label: "CORPOELEC",
+  icon: "⚡"
+}, {
+  id: "agua",
+  label: "Hidrocapital / Aguas",
+  icon: "💧"
+}, {
+  id: "telefono",
+  label: "CANTV / Movilnet",
+  icon: "📞"
+}, {
+  id: "aseo",
+  label: "Aseo Urbano",
+  icon: "🗑️"
+}, {
+  id: "cable",
+  label: "Cable / Internet",
+  icon: "📡"
+}, {
+  id: "gas",
+  label: "Gas doméstico",
+  icon: "🔥"
+}, {
+  id: "otro",
+  label: "Otro servicio",
+  icon: "📄"
+}];
+const MONTHS_FULL = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const STATUS = {
+  pending: {
+    label: "Pendiente",
+    dot: "#F59E0B",
+    bg: "rgba(245,158,11,0.15)",
+    text: "#FBBF24",
+    border: "rgba(245,158,11,0.3)"
+  },
+  overdue: {
+    label: "Vencido",
+    dot: "#EF4444",
+    bg: "rgba(239,68,68,0.15)",
+    text: "#FCA5A5",
+    border: "rgba(239,68,68,0.3)"
+  },
+  notified: {
+    label: "Pago notificado",
+    dot: "#3B82F6",
+    bg: "rgba(59,130,246,0.15)",
+    text: "#93C5FD",
+    border: "rgba(59,130,246,0.3)"
+  },
+  paid: {
+    label: "Pagado ✓",
+    dot: "#10B981",
+    bg: "rgba(16,185,129,0.15)",
+    text: "#6EE7B7",
+    border: "rgba(16,185,129,0.3)"
+  }
+};
+const fmtBs = v => new Intl.NumberFormat("es-VE", {
+  minimumFractionDigits: 2
+}).format(v) + " Bs.";
+const fmtUSD = v => "$\u202F" + v.toLocaleString("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+const fmtEUR = v => "€\u202F" + v.toLocaleString("de-DE", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+const S = {
+  input: {
+    width: "100%",
+    boxSizing: "border-box",
+    border: "1.5px solid #1F2937",
+    borderRadius: 12,
+    padding: "12px 16px",
+    fontSize: 15,
+    fontFamily: "Inter, system-ui, sans-serif",
+    color: "#FFFFFF",
+    background: "#161B30",
+    outline: "none",
+    transition: "border 0.2s",
+    WebkitAppearance: "none"
+  },
+  btn: function () {
+    let bg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "#4F46E5";
+    let color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "#fff";
+    return {
+      background: bg,
+      color,
+      border: "none",
+      borderRadius: 12,
+      padding: "12px 24px",
+      cursor: "pointer",
+      fontSize: 14,
+      fontWeight: 600,
+      fontFamily: "Inter, system-ui, sans-serif",
+      transition: "opacity 0.2s, transform 0.1s",
+      lineHeight: 1.4
+    };
+  },
+  card: {
+    background: "#121626",
+    borderRadius: 18,
+    border: "1px solid #1F2937",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+  }
+};
+function Badge(_ref) {
+  let status = _ref.status;
+  const s = STATUS[status];
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      background: s.bg,
+      color: s.text,
+      border: "1px solid ".concat(s.border),
+      borderRadius: 99,
+      padding: "4px 12px",
+      fontSize: 12,
+      fontWeight: 600,
+      fontFamily: "Inter, system-ui, sans-serif",
+      whiteSpace: "nowrap"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 7,
+      height: 7,
+      borderRadius: "50%",
+      background: s.dot,
+      display: "inline-block"
+    }
+  }), s.label);
+}
+function Field(_ref2) {
+  let label = _ref2.label,
+    children = _ref2.children;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "block",
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#9CA3AF",
+      fontFamily: "Inter, system-ui, sans-serif",
+      marginBottom: 6,
+      letterSpacing: "0.01em"
+    }
+  }, label), children);
+}
+function Modal(_ref3) {
+  let title = _ref3.title,
+    onClose = _ref3.onClose,
+    children = _ref3.children,
+    _ref3$width = _ref3.width,
+    width = _ref3$width === void 0 ? 560 : _ref3$width;
+  return /*#__PURE__*/React.createElement("div", {
+    onClick: e => e.target === e.currentTarget && onClose(),
+    className: "modal-overlay"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-content",
+    style: {
+      maxWidth: width
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "sticky",
+      top: 0,
+      background: "#121626",
+      zIndex: 1,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "18px 24px",
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18,
+      fontWeight: 700,
+      color: "#fff"
+    }
+  }, title), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    "aria-label": "Cerrar",
+    style: {
+      background: "#1F2937",
+      border: "none",
+      borderRadius: 10,
+      width: 34,
+      height: 34,
+      cursor: "pointer",
+      fontSize: 18,
+      color: "#9CA3AF",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      lineHeight: 1
+    }
+  }, "\xD7")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "22px 24px 28px"
+    }
+  }, children)));
+}
+function Toast(_ref4) {
+  let msg = _ref4.msg,
+    type = _ref4.type;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "toast-container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "toast-inner",
+    style: {
+      background: type === "error" ? "#311C1C" : "#122E1F",
+      color: type === "error" ? "#FCA5A5" : "#6EE7B7",
+      border: "1px solid ".concat(type === "error" ? "#EF4444" : "#10B981")
+    }
+  }, type === "error" ? "⚠️ " : "✅ ", msg));
+}
+function useBCVRates() {
+  const getStoredRates = () => {
+    const saved = localStorage.getItem("payexpress_cached_rates_v4");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
+  const _React$useState = React.useState(getStoredRates() || {
+      USD: 554.42,
+      EUR: 645.67,
+      fechaValor: "BCV Oficial (Sincronización Inicial)",
+      fechaPublicacion: ""
+    }),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    rates = _React$useState2[0],
+    setRates = _React$useState2[1];
+  const _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  const _React$useState5 = React.useState(null),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    error = _React$useState6[0],
+    setError = _React$useState6[1];
+  const fetchRates = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(PYTHONANYWHERE_API_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.rateUsd && data.rateEur) {
+          const freshRates = {
+            USD: data.rateUsd,
+            EUR: data.rateEur,
+            fechaValor: "Sincronizado de BCV (".concat(new Date(data.lastUpdated).toLocaleDateString("es-VE"), ")"),
+            fechaPublicacion: new Date(data.lastUpdated).toLocaleTimeString("es-VE")
+          };
+          setRates(freshRates);
+          localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(freshRates));
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Fallo en sincronización.");
+    }
+    setLoading(false);
+  }, []);
+  useEffect(() => {
+    fetchRates();
+    const interval = setInterval(fetchRates, 300000);
+    return () => clearInterval(interval);
+  }, []);
+  return {
+    rates,
+    setRates,
+    loading,
+    error,
+    refetch: fetchRates
+  };
+}
+function PayExpress() {
+  const _useState = useState("dashboard"),
+    _useState2 = _slicedToArray(_useState, 2),
+    tab = _useState2[0],
+    setTab = _useState2[1];
+  const _useState3 = useState(() => {
+      const saved = localStorage.getItem("payexpress_user_services");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          return [];
+        }
+      }
+      return [];
+    }),
+    _useState4 = _slicedToArray(_useState3, 2),
+    services = _useState4[0],
+    setServices = _useState4[1];
+  const _useState5 = useState(null),
+    _useState6 = _slicedToArray(_useState5, 2),
+    toast = _useState6[0],
+    setToast = _useState6[1];
+  const _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    addModal = _useState8[0],
+    setAddModal = _useState8[1];
+  const _useState9 = useState(null),
+    _useState0 = _slicedToArray(_useState9, 2),
+    payModal = _useState0[0],
+    setPayModal = _useState0[1];
+  const _useState1 = useState(1),
+    _useState10 = _slicedToArray(_useState1, 2),
+    payStep = _useState10[0],
+    setPayStep = _useState10[1];
+  const _useState11 = useState(""),
+    _useState12 = _slicedToArray(_useState11, 2),
+    payRef = _useState12[0],
+    setPayRef = _useState12[1];
+  const _useState13 = useState(null),
+    _useState14 = _slicedToArray(_useState13, 2),
+    receiptModal = _useState14[0],
+    setReceiptModal = _useState14[1];
+  const _useState15 = useState(null),
+    _useState16 = _slicedToArray(_useState15, 2),
+    selDay = _useState16[0],
+    setSelDay = _useState16[1];
+  const _useState17 = useState(new Date().getMonth()),
+    _useState18 = _slicedToArray(_useState17, 2),
+    calMonth = _useState18[0],
+    setCalMonth = _useState18[1];
+  const _useState19 = useState(new Date().getFullYear()),
+    _useState20 = _slicedToArray(_useState19, 2),
+    calYear = _useState20[0],
+    setCalYear = _useState20[1];
+  const _useState21 = useState(""),
+    _useState22 = _slicedToArray(_useState21, 2),
+    calcBs = _useState22[0],
+    setCalcBs = _useState22[1];
+  const _useState23 = useState(""),
+    _useState24 = _slicedToArray(_useState23, 2),
+    calcUsd = _useState24[0],
+    setCalcUsd = _useState24[1];
+  const _useState25 = useState("all"),
+    _useState26 = _slicedToArray(_useState25, 2),
+    filterStatus = _useState26[0],
+    setFilterStatus = _useState26[1];
+  const _useState27 = useState(""),
+    _useState28 = _slicedToArray(_useState27, 2),
+    searchTerm = _useState28[0],
+    setSearchTerm = _useState28[1];
+  const _useState29 = useState({
+      type: "condominio",
+      name: "",
+      dueDay: 5,
+      amountBs: "",
+      method: "zelle",
+      notes: ""
+    }),
+    _useState30 = _slicedToArray(_useState29, 2),
+    newSvc = _useState30[0],
+    setNewSvc = _useState30[1];
+  const _useState31 = useState(false),
+    _useState32 = _slicedToArray(_useState31, 2),
+    isEditingRates = _useState32[0],
+    setIsEditingRates = _useState32[1];
+  const _useState33 = useState(""),
+    _useState34 = _slicedToArray(_useState33, 2),
+    tempUsd = _useState34[0],
+    setTempUsd = _useState34[1];
+  const _useState35 = useState(""),
+    _useState36 = _slicedToArray(_useState35, 2),
+    tempEur = _useState36[0],
+    setTempEur = _useState36[1];
+  const _useBCVRates = useBCVRates(),
+    rates = _useBCVRates.rates,
+    setRates = _useBCVRates.setRates,
+    loading = _useBCVRates.loading,
+    error = _useBCVRates.error,
+    refetch = _useBCVRates.refetch;
+  const currentRates = rates;
+  useEffect(() => {
+    const shell = document.getElementById("app-shell");
+    if (shell) shell.style.display = "none";
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("payexpress_user_services", JSON.stringify(services));
+  }, [services]);
+  function notify(msg) {
+    let type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "success";
+    setToast({
+      msg,
+      type
+    });
+    setTimeout(() => setToast(null), 3500);
+  }
+  const stats = {
+    pending: services.filter(s => s.status === "pending").length,
+    overdue: services.filter(s => s.status === "overdue").length,
+    notified: services.filter(s => s.status === "notified").length,
+    paid: services.filter(s => s.status === "paid").length
+  };
+  const totalDebt = services.filter(s => s.status === "pending" || s.status === "overdue").reduce((a, s) => a + s.amountBs, 0);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const svcForDay = day => services.filter(s => s.dueDay === day);
+  const handlePrevMonth = () => {
+    if (calMonth === 0) {
+      setCalMonth(11);
+      setCalYear(p => p - 1);
+    } else {
+      setCalMonth(p => p - 1);
+    }
+    setSelDay(null);
+  };
+  const handleNextMonth = () => {
+    if (calMonth === 11) {
+      setCalMonth(0);
+      setCalYear(p => p + 1);
+    } else {
+      setCalMonth(p => p + 1);
+    }
+    setSelDay(null);
+  };
+  const handleCalcBsChange = val => {
+    setCalcBs(val);
+    if (!val || isNaN(val)) setCalcUsd("");else setCalcUsd((parseFloat(val) / currentRates.USD).toFixed(2));
+  };
+  const handleCalcUsdChange = val => {
+    setCalcUsd(val);
+    if (!val || isNaN(val)) setCalcBs("");else setCalcBs((parseFloat(val) * currentRates.USD).toFixed(2));
+  };
+  function saveManualRates() {
+    const u = parseFloat(tempUsd);
+    const e = parseFloat(tempEur);
+    if (isNaN(u) || isNaN(e) || u <= 0 || e <= 0) {
+      notify("Ingresa números mayores a cero", "error");
+      return;
+    }
+    const updated = {
+      USD: u,
+      EUR: e,
+      fechaValor: "Tasas manuales fijas",
+      fechaPublicacion: new Date().toLocaleTimeString("es-VE")
+    };
+    setRates(updated);
+    localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(updated));
+    setIsEditingRates(false);
+    notify("Tasas actualizadas manualmente");
+  }
+  function addService() {
+    if (!newSvc.name.trim() || !newSvc.amountBs) {
+      notify("Completa nombre y monto", "error");
+      return;
+    }
+    const d = parseInt(newSvc.dueDay);
+    if (isNaN(d) || d < 1 || d > 31) {
+      notify("Día inválido", "error");
+      return;
+    }
+    setServices(p => [...p, _objectSpread(_objectSpread({}, newSvc), {}, {
+      id: Date.now(),
+      dueDay: d,
+      amountBs: parseFloat(newSvc.amountBs),
+      status: "pending"
+    })]);
+    setAddModal(false);
+    setNewSvc({
+      type: "condominio",
+      name: "",
+      dueDay: 5,
+      amountBs: "",
+      method: "zelle",
+      notes: ""
+    });
+    notify("Servicio registrado");
+  }
+  function deleteService(id) {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este servicio?")) {
+      setServices(p => p.filter(s => s.id !== id));
+      notify("Servicio eliminado");
+    }
+  }
+
+  // ─── COMISIÓN ACTIVA ───────────────────────────────────
+  const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
+  const commission = payModal ? COMMISSIONS[payModal.method] : null;
+  const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
+  // Monto de comisión en Bs y USD
+  const commAmtBs = payModal ? payModal.amountBs * (commission ? commission.total : 0) : 0;
+  const commAmtUSD = payModal ? amtUSD * (commission ? commission.total : 0) : 0;
+  const totalAmtBs = payModal ? payModal.amountBs + commAmtBs : 0;
+  const totalAmtUSD = payModal ? amtUSD + commAmtUSD : 0;
+  function notifyPay(svcId) {
+    if (!payRef.trim()) {
+      notify("Ingresa la referencia", "error");
+      return;
+    }
+    setServices(p => p.map(s => s.id === svcId ? _objectSpread(_objectSpread({}, s), {}, {
+      status: "notified",
+      ref: payRef
+    }) : s));
+    setPayStep(3);
+    const commLine = commission && commission.total > 0 ? "\u2022 *Comisi\xF3n (".concat(commission.label, ")*: ").concat(fmtBs(commAmtBs), " (~").concat(fmtUSD(commAmtUSD), ")\n\u2022 *Total enviado*: ").concat(fmtBs(totalAmtBs), " (~").concat(fmtUSD(totalAmtUSD), ")\n") : "";
+    const notesLine = payModal.notes ? "\n*Instrucciones de Pago:*\n".concat(payModal.notes, "\n") : "";
+    const textTemplate = "*Hola PayExpress!*\n\n" + "Acabo de registrar el pago de mi servicio:\n\n" + "\u2022 *Servicio*: ".concat(payModal.name, "\n") + "\u2022 *Monto*: ".concat(fmtBs(payModal.amountBs), " (~").concat(fmtUSD(amtUSD), ")\n") + commLine + "\u2022 *M\xE9todo*: ".concat(pm.label, "\n") + "\u2022 *Referencia*: ".concat(payRef, "\n") + notesLine + "\nLes adjunto el capture del pago realizado por este medio.";
+    const waUrl = "https://wa.me/584126780566?text=".concat(encodeURIComponent(textTemplate));
+    window.open(waUrl, "_blank");
+    notify("Redirigiendo a WhatsApp...");
+  }
+  function confirmPaid(svc) {
+    setServices(p => p.map(s => s.id === svc.id ? _objectSpread(_objectSpread({}, s), {}, {
+      status: "paid"
+    }) : s));
+    setReceiptModal(_objectSpread(_objectSpread({}, svc), {}, {
+      status: "paid",
+      ref: svc.ref || "REF-PAGO",
+      paidAt: new Date()
+    }));
+    setPayModal(null);
+    setPayStep(1);
+    setPayRef("");
+  }
+  const filteredServices = services.filter(s => {
+    const matchesStatus = filterStatus === "all" || s.status === filterStatus;
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  // ─── SECCIÓN COMISIONES ────────────────────────────────
+  const commissionsInfo = [{
+    id: "zelle",
+    label: "Zelle",
+    flag: "🇺🇸",
+    color: "#8B5CF6",
+    pct: "2%",
+    breakdown: ["2% — Comisión PayExpress"],
+    note: "Sin costo adicional de red."
+  }, {
+    id: "zinli",
+    label: "Zinli",
+    flag: "🟣",
+    color: "#A78BFA",
+    pct: "2%",
+    breakdown: ["2% — Comisión PayExpress"],
+    note: "Sin costo adicional de red."
+  }, {
+    id: "paypal",
+    label: "PayPal",
+    flag: "🌐",
+    color: "#3B82F6",
+    pct: "5,5%",
+    breakdown: ["2% — Comisión PayExpress", "3,5% — Red PayPal"],
+    note: "PayPal aplica un cargo adicional por procesamiento internacional."
+  }, {
+    id: "binance",
+    label: "Binance Pay",
+    flag: "🟡",
+    color: "#FBBF24",
+    pct: "2%",
+    breakdown: ["2% — Comisión PayExpress"],
+    note: "Sin costo adicional de red."
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: "#0A0C1A",
+      fontFamily: "Inter, system-ui, sans-serif"
+    }
+  }, toast && /*#__PURE__*/React.createElement(Toast, {
+    msg: toast.msg,
+    type: toast.type
+  }), /*#__PURE__*/React.createElement("header", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0D0F1C",
+      padding: "0 32px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 1200,
+      margin: "0 auto",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      minHeight: 60,
+      flexWrap: "wrap",
+      gap: 8,
+      padding: "8px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 42,
+      height: 42,
+      borderRadius: 12,
+      background: "linear-gradient(135deg,#4F46E5,#7C3AED)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 22,
+      fontWeight: 800,
+      color: "#fff",
+      letterSpacing: -1
+    }
+  }, "P"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 24,
+      fontWeight: 800,
+      color: "#fff",
+      letterSpacing: "-0.03em",
+      lineHeight: 1
+    }
+  }, "Pay", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#818CF8"
+    }
+  }, "Express")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#6B7280",
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      marginTop: 2
+    }
+  }, "Pagos \xB7 Venezuela"))), /*#__PURE__*/React.createElement("nav", {
+    style: {
+      display: "flex",
+      gap: 1,
+      flexWrap: "wrap"
+    }
+  }, [["dashboard", "Dashboard"], ["calendar", "Calendario"], ["services", "Servicios"], ["rates", "Tasas BCV"], ["commissions", "Comisiones"]].map(_ref5 => {
+    let _ref6 = _slicedToArray(_ref5, 2),
+      id = _ref6[0],
+      label = _ref6[1];
+    return /*#__PURE__*/React.createElement("button", {
+      key: id,
+      className: "nav-btn",
+      onClick: () => setTab(id),
+      style: {
+        background: tab === id ? "rgba(79,70,229,.9)" : "transparent",
+        color: tab === id ? "#fff" : "#9CA3AF",
+        border: "none",
+        borderRadius: 8,
+        padding: "8px 14px",
+        cursor: "pointer",
+        fontSize: 13,
+        fontWeight: tab === id ? 600 : 400
+      }
+    }, label);
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0A0C17",
+      borderBottom: "1px solid #1F2937",
+      padding: "10px 24px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 1200,
+      margin: "0 auto"
+    }
+  }, isEditingRates ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      flexWrap: "wrap",
+      fontSize: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 600
+    }
+  }, "Ajustar tasas manualmente:"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "USD:"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.0001",
+    value: tempUsd,
+    onChange: e => setTempUsd(e.target.value),
+    style: {
+      width: 90,
+      padding: "4px 8px",
+      fontSize: 12,
+      borderRadius: 6,
+      border: "1px solid #4F46E5",
+      background: "#1F2937",
+      color: "#FFF",
+      outline: "none"
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "EUR:"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.0001",
+    value: tempEur,
+    onChange: e => setTempEur(e.target.value),
+    style: {
+      width: 90,
+      padding: "4px 8px",
+      fontSize: 12,
+      borderRadius: 6,
+      border: "1px solid #4F46E5",
+      background: "#1F2937",
+      color: "#FFF",
+      outline: "none"
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: saveManualRates,
+    style: {
+      background: "#10B981",
+      color: "#FFF",
+      border: "none",
+      borderRadius: 6,
+      padding: "4px 10px",
+      cursor: "pointer",
+      fontSize: 11,
+      fontWeight: 600
+    }
+  }, "Guardar"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsEditingRates(false),
+    style: {
+      background: "#4B5563",
+      color: "#FFF",
+      border: "none",
+      borderRadius: 6,
+      padding: "4px 10px",
+      cursor: "pointer",
+      fontSize: 11,
+      fontWeight: 600
+    }
+  }, "Cancelar")) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#6B7280",
+      fontWeight: 600,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+      marginBottom: 8,
+      paddingTop: 2
+    }
+  }, "BCV Tasa de Cambio de Referencia", loading && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#4B5563",
+      marginLeft: 8,
+      fontWeight: 400
+    }
+  }, "\u23F3 Sincronizando...")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 20,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#9CA3AF"
+    }
+  }, "\uD83C\uDDFA\uD83C\uDDF8 USD"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#34D399",
+      fontWeight: 700,
+      fontSize: 16
+    }
+  }, currentRates.USD.toFixed(2), " Bs.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#9CA3AF"
+    }
+  }, "\uD83C\uDDEA\uD83C\uDDFA EUR"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#60A5FA",
+      fontWeight: 700,
+      fontSize: 16
+    }
+  }, currentRates.EUR.toFixed(2), " Bs.")), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#374151",
+      fontSize: 11
+    }
+  }, currentRates.fechaValor))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      alignItems: "center",
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setTempUsd(currentRates.USD);
+      setTempEur(currentRates.EUR);
+      setIsEditingRates(true);
+    },
+    style: {
+      background: "transparent",
+      border: "1px solid #374151",
+      borderRadius: 6,
+      padding: "4px 10px",
+      color: "#9CA3AF",
+      cursor: "pointer",
+      fontSize: 11
+    }
+  }, "\u270F\uFE0F Ajustar tasa"), /*#__PURE__*/React.createElement("button", {
+    onClick: refetch,
+    style: {
+      background: "transparent",
+      border: "1px solid #4F46E5",
+      borderRadius: 6,
+      padding: "4px 10px",
+      color: "#818CF8",
+      cursor: "pointer",
+      fontSize: 11
+    }
+  }, "Verificar ahora")))))), /*#__PURE__*/React.createElement("main", {
+    style: {
+      maxWidth: 1200,
+      margin: "0 auto",
+      padding: "36px 32px"
+    }
+  }, tab === "dashboard" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "dashboard-header",
+    style: {
+      fontSize: 28,
+      fontWeight: 700,
+      color: "#fff",
+      margin: 0,
+      letterSpacing: "-0.02em"
+    }
+  }, "Resumen de Pagos"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 14,
+      margin: "4px 0 0"
+    }
+  }, "Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.")), /*#__PURE__*/React.createElement("div", {
+    className: "stats-grid",
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+      gap: 12,
+      marginBottom: 24
+    }
+  }, [{
+    k: "overdue",
+    label: "Vencidos",
+    icon: "⚠️",
+    accent: "#EF4444"
+  }, {
+    k: "pending",
+    label: "Pendientes",
+    icon: "⏳",
+    accent: "#F59E0B"
+  }, {
+    k: "notified",
+    label: "Notificados",
+    icon: "📨",
+    accent: "#3B82F6"
+  }, {
+    k: "paid",
+    label: "Pagados",
+    icon: "✅",
+    accent: "#10B981"
+  }].map(_ref7 => {
+    let k = _ref7.k,
+      label = _ref7.label,
+      icon = _ref7.icon,
+      accent = _ref7.accent;
+    return /*#__PURE__*/React.createElement("div", {
+      key: k,
+      style: _objectSpread(_objectSpread({}, S.card), {}, {
+        padding: "18px 20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6
+      })
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 22
+      }
+    }, icon), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 32,
+        fontWeight: 700,
+        color: accent,
+        lineHeight: 1
+      }
+    }, stats[k]), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "#9CA3AF"
+      }
+    }, label));
+  })), totalDebt > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0D0F1C",
+      borderRadius: 18,
+      padding: "24px 28px",
+      marginBottom: 24,
+      border: "1px solid #1E2235"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#9CA3AF",
+      textTransform: "uppercase",
+      marginBottom: 8,
+      fontWeight: 600
+    }
+  }, "Total deuda pendiente de pago"), /*#__PURE__*/React.createElement("div", {
+    className: "total-debt-value",
+    style: {
+      fontSize: 38,
+      fontWeight: 800,
+      color: "#fff",
+      letterSpacing: "-0.02em",
+      marginBottom: 18
+    }
+  }, fmtBs(totalDebt)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 12,
+      flexWrap: "wrap"
+    }
+  }, [{
+    label: "Equivalente USD",
+    val: fmtUSD(totalDebt / currentRates.USD),
+    color: "#34D399"
+  }, {
+    label: "Equivalente EUR",
+    val: fmtEUR(totalDebt / currentRates.EUR),
+    color: "#60A5FA"
+  }].map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.label,
+    style: {
+      background: "rgba(255,255,255,.06)",
+      borderRadius: 12,
+      padding: "12px 20px",
+      border: "1px solid rgba(255,255,255,.08)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#9CA3AF",
+      marginBottom: 4,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em"
+    }
+  }, x.label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 24,
+      fontWeight: 700,
+      color: x.color
+    }
+  }, x.val))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "rgba(255,255,255,.06)",
+      borderRadius: 12,
+      padding: "12px 20px",
+      border: "1px solid rgba(255,255,255,.08)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#9CA3AF",
+      marginBottom: 4,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em"
+    }
+  }, "Tasa actual"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 16,
+      fontWeight: 700,
+      color: "#9CA3AF"
+    }
+  }, "1 USD = ", currentRates.USD.toFixed(2), " Bs.")))), /*#__PURE__*/React.createElement("div", {
+    style: S.card
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "16px 22px 12px",
+      borderBottom: "1px solid #1F2937",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 17,
+      color: "#fff"
+    }
+  }, "Todos los servicios"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAddModal(true),
+    style: S.btn("#4F46E5")
+  }, "+ Agregar servicio")), services.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "40px 22px",
+      textAlign: "center",
+      color: "#9CA3AF"
+    }
+  }, "Presiona el bot\xF3n superior para agregar tu primer cobro."), services.sort((a, b) => a.dueDay - b.dueDay).map(s => {
+    const st = SERVICE_TYPES.find(t => t.id === s.type);
+    const pm = PAY_METHODS.find(p => p.id === s.method);
+    return /*#__PURE__*/React.createElement("div", {
+      key: s.id,
+      className: "svc-row",
+      style: {
+        padding: "14px 22px",
+        borderBottom: "1px solid #1F2937",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 24,
+        flexShrink: 0
+      }
+    }, st === null || st === void 0 ? void 0 : st.icon), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 140
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        color: "#fff",
+        fontSize: 14
+      }
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#9CA3AF",
+        fontSize: 12,
+        marginTop: 2
+      }
+    }, "D\xEDa ", s.dueDay, " \xB7 ", pm === null || pm === void 0 ? void 0 : pm.label, " ", pm === null || pm === void 0 ? void 0 : pm.flag, s.notes ? " \xB7 ".concat(s.notes) : "")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right",
+        minWidth: 100
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        color: "#fff",
+        fontSize: 15
+      }
+    }, fmtBs(s.amountBs)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#9CA3AF",
+        marginTop: 2
+      }
+    }, fmtUSD(s.amountBs / currentRates.USD), " \xB7 ", fmtEUR(s.amountBs / currentRates.EUR))), /*#__PURE__*/React.createElement(Badge, {
+      status: s.status
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, (s.status === "pending" || s.status === "overdue") && /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setPayModal(s);
+        setPayStep(1);
+        setPayRef("");
+      },
+      style: S.btn("#4F46E5")
+    }, "Pagar"), s.status === "notified" && /*#__PURE__*/React.createElement("button", {
+      onClick: () => confirmPaid(s),
+      style: S.btn("#059669")
+    }, "Marcar pagado"), s.status === "paid" && /*#__PURE__*/React.createElement("button", {
+      onClick: () => setReceiptModal(s),
+      style: S.btn("#6B7280")
+    }, "Ver recibo")));
+  }))), tab === "calendar" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "dashboard-header",
+    style: {
+      fontSize: 28,
+      fontWeight: 700,
+      color: "#fff",
+      margin: 0,
+      letterSpacing: "-0.02em"
+    }
+  }, "Calendario de Cobros"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 14,
+      margin: "4px 0 0"
+    }
+  }, "Control de fechas l\xEDmites para el pago de compromisos.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: handlePrevMonth,
+    style: _objectSpread(_objectSpread({}, S.btn("#1F2937", "#9CA3AF")), {}, {
+      border: "1px solid #374151",
+      padding: "8px 14px"
+    })
+  }, "\u2190 Anterior"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: "#fff",
+      minWidth: 130,
+      textAlign: "center"
+    }
+  }, MONTHS_FULL[calMonth], " ", calYear), /*#__PURE__*/React.createElement("button", {
+    onClick: handleNextMonth,
+    style: _objectSpread(_objectSpread({}, S.btn("#1F2937", "#9CA3AF")), {}, {
+      border: "1px solid #374151",
+      padding: "8px 14px"
+    })
+  }, "Siguiente \u2192"))), /*#__PURE__*/React.createElement("div", {
+    className: "calendar-layout",
+    style: {
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr",
+      gap: 20,
+      alignItems: "start"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      padding: 22
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(7, 1fr)",
+      gap: 4,
+      marginBottom: 10,
+      textAlign: "center",
+      fontWeight: 600,
+      color: "#9CA3AF",
+      fontSize: 12
+    }
+  }, WEEKDAYS.map(w => /*#__PURE__*/React.createElement("div", {
+    key: w,
+    style: {
+      padding: "8px 0"
+    }
+  }, w))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(7, 1fr)",
+      gap: 4
+    }
+  }, Array.from({
+    length: firstDay
+  }).map((_, i) => /*#__PURE__*/React.createElement("div", {
+    key: "empty-".concat(i),
+    style: {
+      background: "#161B30",
+      borderRadius: 10,
+      aspectRatio: "1"
+    }
+  })), Array.from({
+    length: daysInMonth
+  }).map((_, i) => {
+    const dayNum = i + 1;
+    const daySvcs = svcForDay(dayNum);
+    const isSelected = selDay === dayNum;
+    return /*#__PURE__*/React.createElement("div", {
+      key: "day-".concat(dayNum),
+      onClick: () => setSelDay(dayNum),
+      className: "cal-day",
+      style: {
+        background: isSelected ? "#242F5C" : "#121626",
+        border: isSelected ? "1.5px solid #6366F1" : "1px solid #1F2937",
+        borderRadius: 10,
+        aspectRatio: "1",
+        padding: 6,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontWeight: 600,
+        color: isSelected ? "#818CF8" : "#fff",
+        fontSize: 13
+      }
+    }, dayNum), daySvcs.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 3,
+        flexWrap: "wrap"
+      }
+    }, daySvcs.map(s => /*#__PURE__*/React.createElement("span", {
+      key: s.id,
+      style: {
+        width: 5,
+        height: 5,
+        borderRadius: "50%",
+        background: STATUS[s.status].dot
+      }
+    }))));
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      padding: 22,
+      minHeight: 300
+    })
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: "#fff",
+      marginBottom: 14
+    }
+  }, selDay ? "D\xEDa ".concat(selDay, " de ").concat(MONTHS_FULL[calMonth]) : "Selecciona un día"), selDay ? svcForDay(selDay).length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13,
+      textAlign: "center",
+      padding: "36px 0"
+    }
+  }, "No hay vencimientos programados.") : svcForDay(selDay).map(s => {
+    const st = SERVICE_TYPES.find(t => t.id === s.type);
+    return /*#__PURE__*/React.createElement("div", {
+      key: s.id,
+      style: {
+        padding: "12px 0",
+        borderBottom: "1px solid #1F2937"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 10,
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, st === null || st === void 0 ? void 0 : st.icon), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        fontSize: 13,
+        color: "#fff"
+      }
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#9CA3AF",
+        fontSize: 11
+      }
+    }, fmtBs(s.amountBs))), /*#__PURE__*/React.createElement(Badge, {
+      status: s.status
+    })));
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13,
+      textAlign: "center",
+      padding: "36px 0"
+    }
+  }, "Selecciona un d\xEDa del calendario para ver las obligaciones vinculadas a esa fecha.")))), tab === "services" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "dashboard-header",
+    style: {
+      fontSize: 28,
+      fontWeight: 700,
+      color: "#fff",
+      margin: 0,
+      letterSpacing: "-0.02em"
+    }
+  }, "Directorio de Servicios"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 14,
+      margin: "4px 0 0"
+    }
+  }, "Registra y personaliza tus servicios fijos y residenciales.")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAddModal(true),
+    style: S.btn("#4F46E5")
+  }, "+ Registrar nuevo")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      marginBottom: 18,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "\uD83D\uDD0D Buscar por nombre...",
+    value: searchTerm,
+    onChange: e => setSearchTerm(e.target.value),
+    style: S.input
+  }), /*#__PURE__*/React.createElement("select", {
+    value: filterStatus,
+    onChange: e => setFilterStatus(e.target.value),
+    style: _objectSpread(_objectSpread({}, S.input), {}, {
+      width: "auto"
+    })
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "all"
+  }, "Todos los estados"), /*#__PURE__*/React.createElement("option", {
+    value: "pending"
+  }, "Pendientes"), /*#__PURE__*/React.createElement("option", {
+    value: "overdue"
+  }, "Vencidos"), /*#__PURE__*/React.createElement("option", {
+    value: "notified"
+  }, "Notificados"), /*#__PURE__*/React.createElement("option", {
+    value: "paid"
+  }, "Pagados"))), /*#__PURE__*/React.createElement("div", {
+    style: S.card
+  }, filteredServices.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "40px 22px",
+      textAlign: "center",
+      color: "#9CA3AF"
+    }
+  }, "Sin elementos de servicios registrados.") : filteredServices.map(s => {
+    const st = SERVICE_TYPES.find(t => t.id === s.type);
+    const pm = PAY_METHODS.find(p => p.id === s.method);
+    return /*#__PURE__*/React.createElement("div", {
+      key: s.id,
+      className: "svc-row",
+      style: {
+        padding: "14px 22px",
+        borderBottom: "1px solid #1F2937",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 24
+      }
+    }, st === null || st === void 0 ? void 0 : st.icon), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 140
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        color: "#fff",
+        fontSize: 14
+      }
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#9CA3AF",
+        fontSize: 12,
+        marginTop: 2
+      }
+    }, "Corte: D\xEDa ", s.dueDay, " \xB7 V\xEDa ", pm === null || pm === void 0 ? void 0 : pm.label, " ", pm === null || pm === void 0 ? void 0 : pm.flag, s.notes ? " \xB7 Notas: ".concat(s.notes) : "")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        color: "#fff",
+        fontSize: 15
+      }
+    }, fmtBs(s.amountBs)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#9CA3AF"
+      }
+    }, "~ ", fmtUSD(s.amountBs / currentRates.USD))), /*#__PURE__*/React.createElement(Badge, {
+      status: s.status
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => deleteService(s.id),
+      style: S.btn("#FEE2E2", "#EF4444")
+    }, "Eliminar"), (s.status === "pending" || s.status === "overdue") && /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setPayModal(s);
+        setPayStep(1);
+        setPayRef("");
+      },
+      style: S.btn("#4F46E5")
+    }, "Pagar")));
+  }))), tab === "rates" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "dashboard-header",
+    style: {
+      fontSize: 28,
+      fontWeight: 700,
+      color: "#fff",
+      margin: 0,
+      letterSpacing: "-0.02em"
+    }
+  }, "Indicadores cambiarios"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 14,
+      margin: "4px 0 0"
+    }
+  }, "Tasas oficiales de referencia en tiempo real.")), /*#__PURE__*/React.createElement("div", {
+    className: "rates-layout",
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 20,
+      alignItems: "start"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      padding: 26
+    })
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 16,
+      fontWeight: 700,
+      color: "#fff",
+      marginBottom: 18
+    }
+  }, "Valores Sincronizados"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "10px 0",
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 500
+    }
+  }, "D\xF3lar BCV (USD)"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#10B981",
+      fontSize: 16
+    }
+  }, currentRates.USD.toFixed(2), " Bs.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "10px 0",
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 500
+    }
+  }, "Euro BCV (EUR)"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#3B82F6",
+      fontSize: 16
+    }
+  }, currentRates.EUR.toFixed(2), " Bs.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "10px 0",
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 500
+    }
+  }, "\xDAltima sincronizaci\xF3n"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13
+    }
+  }, currentRates.fechaValor))), /*#__PURE__*/React.createElement("button", {
+    onClick: refetch,
+    disabled: loading,
+    style: _objectSpread(_objectSpread({}, S.btn("#4F46E5")), {}, {
+      width: "100%",
+      marginTop: 22
+    })
+  }, loading ? "Sincronizando..." : "Verificar tasas ahora")), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      padding: 26
+    })
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 16,
+      fontWeight: 700,
+      color: "#fff",
+      marginBottom: 18
+    }
+  }, "Calculadora Conversora"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Monto en Bol\xEDvares (Bs.)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "Introduce el monto en Bs.",
+    value: calcBs,
+    onChange: e => handleCalcBsChange(e.target.value),
+    style: S.input
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Monto en D\xF3lares (USD)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "Introduce el monto en USD",
+    value: calcUsd,
+    onChange: e => handleCalcUsdChange(e.target.value),
+    style: S.input
+  })))))), tab === "commissions" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "dashboard-header",
+    style: {
+      fontSize: 28,
+      fontWeight: 700,
+      color: "#fff",
+      margin: 0,
+      letterSpacing: "-0.02em"
+    }
+  }, "Comisiones por Canal de Pago"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 14,
+      margin: "4px 0 0"
+    }
+  }, "Conoce la comisi\xF3n aplicable seg\xFAn el m\xE9todo de pago que elijas.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "rgba(79,70,229,0.1)",
+      border: "1px solid rgba(79,70,229,0.3)",
+      borderRadius: 14,
+      padding: "16px 20px",
+      marginBottom: 24,
+      display: "flex",
+      gap: 12,
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 20
+    }
+  }, "\u2139\uFE0F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600,
+      color: "#A5B4FC",
+      fontSize: 14,
+      marginBottom: 4
+    }
+  }, "\xBFC\xF3mo se calcula la comisi\xF3n?"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13,
+      lineHeight: 1.6
+    }
+  }, "PayExpress aplica una comisi\xF3n base de ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, "2%"), " sobre el monto del servicio por el procesamiento del pago. En el caso de PayPal, se suma adicionalmente el cargo de la red PayPal (", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, "3,5%"), "), resultando en un total de ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, "5,5%"), "."))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: 16
+    }
+  }, commissionsInfo.map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.id,
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      padding: 24,
+      position: "relative",
+      overflow: "hidden"
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 3,
+      background: c.color,
+      borderRadius: "18px 18px 0 0"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 12,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 26
+    }
+  }, c.flag), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      color: "#fff",
+      fontSize: 16
+    }
+  }, c.label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#9CA3AF",
+      marginTop: 1
+    }
+  }, "Canal de pago")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginLeft: "auto",
+      background: "".concat(c.color, "22"),
+      border: "1px solid ".concat(c.color, "55"),
+      borderRadius: 10,
+      padding: "6px 14px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      fontWeight: 800,
+      color: c.color,
+      lineHeight: 1
+    }
+  }, c.pct), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#9CA3AF",
+      textAlign: "center",
+      marginTop: 2,
+      textTransform: "uppercase",
+      letterSpacing: "0.06em"
+    }
+  }, "comisi\xF3n"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid #1F2937",
+      paddingTop: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6B7280",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 8
+    }
+  }, "Desglose"), c.breakdown.map((line, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 6,
+      fontSize: 13,
+      color: "#D1D5DB"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 6,
+      height: 6,
+      borderRadius: "50%",
+      background: c.color,
+      flexShrink: 0
+    }
+  }), line)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12,
+      fontSize: 12,
+      color: "#6B7280",
+      fontStyle: "italic",
+      lineHeight: 1.5
+    }
+  }, c.note))))), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card), {}, {
+      marginTop: 24
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "16px 22px 12px",
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 16,
+      color: "#fff"
+    }
+  }, "Tabla Comparativa de Comisiones"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#9CA3AF",
+      marginTop: 2
+    }
+  }, "Ejemplo con un pago de 15.000,00 Bs.")), commissionsInfo.map(c => {
+    const exampleBs = 15000;
+    const commBs = exampleBs * COMMISSIONS[c.id].total;
+    const totalBs = exampleBs + commBs;
+    const totalUSD = totalBs / currentRates.USD;
+    return /*#__PURE__*/React.createElement("div", {
+      key: c.id,
+      style: {
+        padding: "14px 22px",
+        borderBottom: "1px solid #1F2937",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 20
+      }
+    }, c.flag), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 100
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        color: "#fff",
+        fontSize: 14
+      }
+    }, c.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#9CA3AF",
+        fontSize: 12
+      }
+    }, "Comisi\xF3n: ", c.pct)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "#9CA3AF"
+      }
+    }, "Comisi\xF3n sobre el monto"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        color: "#F59E0B",
+        fontSize: 14
+      }
+    }, "+ ", fmtBs(commBs))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right",
+        minWidth: 130
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "#9CA3AF"
+      }
+    }, "Total a enviar"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        color: "#fff",
+        fontSize: 15
+      }
+    }, fmtBs(totalBs)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#34D399"
+      }
+    }, "~ ", fmtUSD(totalUSD))));
+  })))), addModal && /*#__PURE__*/React.createElement(Modal, {
+    title: "Agregar Servicio",
+    onClose: () => setAddModal(false)
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Clasificaci\xF3n"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: newSvc.type,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      type: e.target.value
+    })),
+    style: S.input
+  }, SERVICE_TYPES.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t.id,
+    value: t.id
+  }, t.icon, " ", t.label)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Identificador o Nombre del Servicio"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Ej. Condominio Residencias El Sol",
+    value: newSvc.name,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      name: e.target.value
+    })),
+    style: S.input
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "D\xEDa de Pago (1 al 31)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "1",
+    max: "31",
+    placeholder: "Ej. 5",
+    value: newSvc.dueDay,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      dueDay: e.target.value
+    })),
+    style: S.input
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Monto mensual base (Bs.)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "Monto en Bs.",
+    value: newSvc.amountBs,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      amountBs: e.target.value
+    })),
+    style: S.input
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Canal de Pago Preferido"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: newSvc.method,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      method: e.target.value
+    })),
+    style: S.input
+  }, PAY_METHODS.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.flag, " ", p.label)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Instrucciones de Pago (Banco, N\xB0 de Cuenta, Beneficiario, RIF...)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: "2",
+    placeholder: "Ej. Banco Provincial, Cuenta: 0108-0123456789-000, RIF J-0123456787-9",
+    value: newSvc.notes,
+    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
+      notes: e.target.value
+    })),
+    style: _objectSpread(_objectSpread({}, S.input), {}, {
+      resize: "none"
+    })
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: addService,
+    style: _objectSpread(_objectSpread({}, S.btn("#4F46E5")), {}, {
+      width: "100%",
+      marginTop: 10
+    })
+  }, "Agregar Servicio")), payModal && pm && commission && /*#__PURE__*/React.createElement(Modal, {
+    title: "Emitir Pago: ".concat(payModal.name),
+    onClose: () => {
+      setPayModal(null);
+      setPayStep(1);
+      setPayRef("");
+    }
+  }, payStep === 1 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: pm.bg,
+      padding: 18,
+      borderRadius: 12,
+      marginBottom: 18,
+      border: "1px solid ".concat(pm.color, "40")
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#fff",
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em"
+    }
+  }, "Informaci\xF3n de la Cuenta Receptor"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18,
+      fontWeight: 700,
+      color: "#fff",
+      margin: "6px 0"
+    }
+  }, pm.label, " ", pm.flag), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 14,
+      fontFamily: "monospace",
+      color: "#9CA3AF"
+    }
+  }, "Cuenta destinataria:", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontSize: 15,
+      color: "#fff"
+    }
+  }, pm.account))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0D0F1C",
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 18,
+      border: "1px solid #1E2235"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6B7280",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 12
+    }
+  }, "Desglose del pago"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13
+    }
+  }, "Monto del servicio"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontWeight: 600,
+      fontSize: 13
+    }
+  }, fmtBs(payModal.amountBs)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 11,
+      display: "block"
+    }
+  }, fmtUSD(amtUSD)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 12,
+      paddingBottom: 12,
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13
+    }
+  }, "Comisi\xF3n (", commission.label, ")"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6B7280",
+      marginTop: 2
+    }
+  }, commission.detail)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#F59E0B",
+      fontWeight: 600,
+      fontSize: 13
+    }
+  }, "+ ", fmtBs(commAmtBs)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 11,
+      display: "block"
+    }
+  }, "+ ", fmtUSD(commAmtUSD)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontWeight: 700,
+      fontSize: 14
+    }
+  }, "Total a enviar"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#10B981",
+      fontWeight: 800,
+      fontSize: 20
+    }
+  }, fmtBs(totalAmtBs)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#34D399",
+      fontSize: 13,
+      marginTop: 2
+    }
+  }, "~ ", fmtUSD(totalAmtUSD))))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPayStep(2),
+    style: _objectSpread(_objectSpread({}, S.btn("#4F46E5")), {}, {
+      width: "100%"
+    })
+  }, "Declarar Soporte de Pago")), payStep === 2 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0D0F1C",
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 18,
+      border: "1px solid #1E2235"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6B7280",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: 12
+    }
+  }, "Desglose del pago \xB7 ", pm.label, " ", pm.flag), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13
+    }
+  }, "Monto del servicio"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontWeight: 600,
+      fontSize: 13
+    }
+  }, fmtBs(payModal.amountBs)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 11,
+      display: "block"
+    }
+  }, fmtUSD(amtUSD)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 12,
+      paddingBottom: 12,
+      borderBottom: "1px solid #1F2937"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13
+    }
+  }, "Comisi\xF3n (", commission.label, ")"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6B7280",
+      marginTop: 2
+    }
+  }, commission.detail)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#F59E0B",
+      fontWeight: 600,
+      fontSize: 13
+    }
+  }, "+ ", fmtBs(commAmtBs)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 11,
+      display: "block"
+    }
+  }, "+ ", fmtUSD(commAmtUSD)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontWeight: 700,
+      fontSize: 14
+    }
+  }, "Total a enviar"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#10B981",
+      fontWeight: 800,
+      fontSize: 20
+    }
+  }, fmtBs(totalAmtBs)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#34D399",
+      fontSize: 13,
+      marginTop: 2
+    }
+  }, "~ ", fmtUSD(totalAmtUSD))))), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: "#9CA3AF",
+      marginBottom: 16
+    }
+  }, "Ingresa el n\xFAmero de confirmaci\xF3n o referencia bancaria para asociar el pago de tu servicio."), /*#__PURE__*/React.createElement(Field, {
+    label: "C\xF3digo de Referencia Bancaria"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Ej. REF-983172",
+    value: payRef,
+    onChange: e => setPayRef(e.target.value),
+    style: S.input
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPayStep(1),
+    style: _objectSpread(_objectSpread({}, S.btn("#1F2937", "#9CA3AF")), {}, {
+      flex: 1
+    })
+  }, "Atr\xE1s"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => notifyPay(payModal.id),
+    style: _objectSpread(_objectSpread({}, S.btn("#059669")), {}, {
+      flex: 2
+    })
+  }, "Confirmar Pago"))), payStep === 3 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "14px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 56,
+      height: 56,
+      borderRadius: "50%",
+      background: "#D1FAE5",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      margin: "0 auto 14px"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#059669",
+      fontSize: 28,
+      fontWeight: "bold"
+    }
+  }, "\u2713")), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 17,
+      fontWeight: 700,
+      color: "#fff"
+    }
+  }, "Reporte Registrado"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      fontSize: 13,
+      margin: "8px 0 22px"
+    }
+  }, "El soporte ha sido registrado para su procesamiento."), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setPayModal(null);
+      setPayStep(1);
+      setPayRef("");
+    },
+    style: _objectSpread(_objectSpread({}, S.btn("#111827")), {}, {
+      width: "100%"
+    })
+  }, "Cerrar"))), receiptModal && /*#__PURE__*/React.createElement(Modal, {
+    title: "Verificaci\xF3n Electr\xF3nica",
+    onClose: () => setReceiptModal(null)
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      border: "2px dashed #374151",
+      borderRadius: 16,
+      padding: 22,
+      background: "#161B30"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontSize: 17,
+      fontWeight: 700,
+      color: "#fff"
+    }
+  }, "PayExpress"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "#9CA3AF"
+    }
+  }, "Detalle del Cobro")), /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: "rgba(16,185,129,0.2)",
+      color: "#6EE7B7",
+      padding: "4px 10px",
+      borderRadius: 99,
+      fontSize: 10,
+      fontWeight: 600
+    }
+  }, "PROCESADO")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      borderTop: "1px solid #1F2937",
+      paddingTop: 14,
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "Servicio asociado:"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, receiptModal.name)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "Referencia de Transacci\xF3n:"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, receiptModal.ref || "REF-COMPROBANTE")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "M\xE9todo utilizado:"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff"
+    }
+  }, (receiptModal.method || "").toUpperCase())), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9CA3AF"
+    }
+  }, "Total conciliado:"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: "#fff",
+      fontSize: 15
+    }
+  }, fmtBs(receiptModal.amountBs))))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setReceiptModal(null),
+    style: _objectSpread(_objectSpread({}, S.btn("#4F46E5")), {}, {
+      width: "100%",
+      marginTop: 18
+    })
+  }, "Cerrar")), /*#__PURE__*/React.createElement("footer", {
+    style: {
+      background: "#0D0F1C",
+      marginTop: 48,
+      padding: "28px 32px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 1200,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+      gap: 20,
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18,
+      fontWeight: 800,
+      color: "#fff",
+      letterSpacing: "-0.02em",
+      marginBottom: 4
+    }
+  }, "Pay", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#818CF8"
+    }
+  }, "Express")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#9CA3AF",
+      lineHeight: 1.6
+    }
+  }, "Pagos de condominios y servicios p\xFAblicos", /*#__PURE__*/React.createElement("br", null), "en Venezuela desde cualquier parte del mundo.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 20,
+      fontSize: 12,
+      color: "#4B5563",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 600,
+      marginBottom: 6,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      fontSize: 10
+    }
+  }, "Canales de Pago"), PAY_METHODS.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    style: {
+      marginBottom: 3
+    }
+  }, p.flag, " ", p.label))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#9CA3AF",
+      fontWeight: 600,
+      marginBottom: 6,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      fontSize: 10
+    }
+  }, "Servicios soportados"), SERVICE_TYPES.slice(0, 4).map(t => /*#__PURE__*/React.createElement("div", {
+    key: t.id,
+    style: {
+      marginBottom: 3
+    }
+  }, t.icon, " ", t.label))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid #1F2937",
+      paddingTop: 18,
+      display: "flex",
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#9CA3AF"
+    }
+  }, "\xA9 2026 PayExpress \xB7 Tasas Oficiales de Referencia \xB7 Pagos Verificados"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#9CA3AF"
+    }
+  }, "Valor aplicado: 1 USD = ", currentRates.USD.toFixed(2), " Bs. \xB7 Sincronizaci\xF3n: ", currentRates.fechaValor)))));
+}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(/*#__PURE__*/React.createElement(PayExpress, null));
+
+</script>
+<script>
     (function() {
       var root = document.getElementById('root');
       var shell = document.getElementById('app-shell');
@@ -220,871 +2775,6 @@
       });
       obs.observe(root, { childList: true });
     })();
-  </script>
-
-  <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
-
-    const PYTHONANYWHERE_API_URL = "https://profeluisv.eu.pythonanywhere.com/api/bcv-rates";
-
-    // ─── COMISIONES POR CANAL ───────────────────────────────
-    // Base PayExpress: 2%
-    // PayPal agrega 3.5% adicional (costo de la red PayPal) → total 5.5%
-    const COMMISSIONS = {
-      zelle:   { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
-      zinli:   { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
-      paypal:  { base: 0.02, extra: 0.035, total: 0.055, label: "5,5%",      detail: "2% PayExpress + 3,5% red PayPal" },
-      binance: { base: 0.02, extra: 0,     total: 0.02,  label: "2%",        detail: "Comisión PayExpress" },
-    };
-
-    const PAY_METHODS = [
-      { id: "zelle",   label: "Zelle",        icon: "Z",  color: "#8B5CF6", bg: "#2E1A47", account: "pagos@payexpress.com",  flag: "🇺🇸" },
-      { id: "zinli",   label: "Zinli",        icon: "Zi", color: "#A78BFA", bg: "#2A1F45", account: "@payexpress_ve",        flag: "🟣" },
-      { id: "paypal",  label: "PayPal",       icon: "PP", color: "#3B82F6", bg: "#1E2A4A", account: "pagos@payexpress.com",  flag: "🌐" },
-      { id: "binance", label: "Binance Pay",  icon: "Bn", color: "#FBBF24", bg: "#3D301A", account: "PayExpressVE",          flag: "🟡" },
-    ];
-
-    const SERVICE_TYPES = [
-      { id: "condominio",    label: "Condominio",           icon: "🏢" },
-      { id: "electricidad", label: "CORPOELEC",             icon: "⚡" },
-      { id: "agua",         label: "Hidrocapital / Aguas",  icon: "💧" },
-      { id: "telefono",     label: "CANTV / Movilnet",      icon: "📞" },
-      { id: "aseo",         label: "Aseo Urbano",           icon: "🗑️" },
-      { id: "cable",        label: "Cable / Internet",      icon: "📡" },
-      { id: "gas",          label: "Gas doméstico",         icon: "🔥" },
-      { id: "otro",         label: "Otro servicio",         icon: "📄" },
-    ];
-
-    const MONTHS_FULL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-    const WEEKDAYS   = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
-
-    const STATUS = {
-      pending:  { label: "Pendiente",         dot: "#F59E0B", bg: "rgba(245,158,11,0.15)", text: "#FBBF24", border: "rgba(245,158,11,0.3)" },
-      overdue:  { label: "Vencido",           dot: "#EF4444", bg: "rgba(239,68,68,0.15)",  text: "#FCA5A5", border: "rgba(239,68,68,0.3)" },
-      notified: { label: "Pago notificado",   dot: "#3B82F6", bg: "rgba(59,130,246,0.15)", text: "#93C5FD", border: "rgba(59,130,246,0.3)" },
-      paid:     { label: "Pagado ✓",          dot: "#10B981", bg: "rgba(16,185,129,0.15)", text: "#6EE7B7", border: "rgba(16,185,129,0.3)" },
-    };
-
-    const fmtBs  = v => new Intl.NumberFormat("es-VE", { minimumFractionDigits: 2 }).format(v) + " Bs.";
-    const fmtUSD = v => "$\u202F" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const fmtEUR = v => "€\u202F" + v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    const S = {
-      input: {
-        width: "100%", boxSizing: "border-box",
-        border: "1.5px solid #1F2937", borderRadius: 12,
-        padding: "12px 16px", fontSize: 15, fontFamily: "Inter, system-ui, sans-serif",
-        color: "#FFFFFF", background: "#161B30", outline: "none",
-        transition: "border 0.2s", WebkitAppearance: "none"
-      },
-      btn: (bg = "#4F46E5", color = "#fff") => ({
-        background: bg, color, border: "none", borderRadius: 12,
-        padding: "12px 24px", cursor: "pointer",
-        fontSize: 14, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif",
-        transition: "opacity 0.2s, transform 0.1s", lineHeight: 1.4
-      }),
-      card: {
-        background: "#121626", borderRadius: 18,
-        border: "1px solid #1F2937",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-      },
-    };
-
-    function Badge({ status }) {
-      const s = STATUS[status];
-      return (
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6,
-          background: s.bg, color: s.text, border: `1px solid ${s.border}`,
-          borderRadius: 99, padding: "4px 12px", fontSize: 12, fontWeight: 600,
-          fontFamily: "Inter, system-ui, sans-serif", whiteSpace: "nowrap" }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block" }} />
-          {s.label}
-        </span>
-      );
-    }
-
-    function Field({ label, children }) {
-      return (
-        <div style={{ marginBottom: 18 }}>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#9CA3AF",
-            fontFamily: "Inter, system-ui, sans-serif", marginBottom: 6, letterSpacing: "0.01em" }}>
-            {label}
-          </label>
-          {children}
-        </div>
-      );
-    }
-
-    function Modal({ title, onClose, children, width = 560 }) {
-      return (
-        <div onClick={e => e.target === e.currentTarget && onClose()} className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: width }}>
-            <div style={{ position: "sticky", top: 0, background: "#121626", zIndex: 1,
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "18px 24px", borderBottom: "1px solid #1F2937" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>{title}</div>
-              <button onClick={onClose} aria-label="Cerrar" style={{ background: "#1F2937", border: "none",
-                borderRadius: 10, width: 34, height: 34, cursor: "pointer", fontSize: 18, color: "#9CA3AF",
-                display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>×</button>
-            </div>
-            <div style={{ padding: "22px 24px 28px" }}>{children}</div>
-          </div>
-        </div>
-      );
-    }
-
-    function Toast({ msg, type }) {
-      return (
-        <div className="toast-container">
-          <div className="toast-inner" style={{
-            background: type === "error" ? "#311C1C" : "#122E1F",
-            color: type === "error" ? "#FCA5A5" : "#6EE7B7",
-            border: `1px solid ${type === "error" ? "#EF4444" : "#10B981"}`
-          }}>
-            {type === "error" ? "⚠️ " : "✅ "}{msg}
-          </div>
-        </div>
-      );
-    }
-
-    function useBCVRates() {
-      const getStoredRates = () => {
-        const saved = localStorage.getItem("payexpress_cached_rates_v4");
-        if (saved) { try { return JSON.parse(saved); } catch (e) { return null; } }
-        return null;
-      };
-
-      const [rates, setRates] = React.useState(getStoredRates() || {
-        USD: 554.42, EUR: 645.67,
-        fechaValor: "BCV Oficial (Sincronización Inicial)", fechaPublicacion: ""
-      });
-      const [loading, setLoading] = React.useState(true);
-      const [error, setError]     = React.useState(null);
-
-      const fetchRates = useCallback(async () => {
-        setLoading(true); setError(null);
-        try {
-          const response = await fetch(PYTHONANYWHERE_API_URL);
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.rateUsd && data.rateEur) {
-              const freshRates = {
-                USD: data.rateUsd, EUR: data.rateEur,
-                fechaValor: `Sincronizado de BCV (${new Date(data.lastUpdated).toLocaleDateString("es-VE")})`,
-                fechaPublicacion: new Date(data.lastUpdated).toLocaleTimeString("es-VE")
-              };
-              setRates(freshRates);
-              localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(freshRates));
-              setLoading(false); return;
-            }
-          }
-        } catch (err) { console.warn("Fallo en sincronización."); }
-        setLoading(false);
-      }, []);
-
-      useEffect(() => {
-        fetchRates();
-        const interval = setInterval(fetchRates, 300000);
-        return () => clearInterval(interval);
-      }, []);
-
-      return { rates, setRates, loading, error, refetch: fetchRates };
-    }
-
-    function PayExpress() {
-      const [tab, setTab] = useState("dashboard");
-
-      const [services, setServices] = useState(() => {
-        const saved = localStorage.getItem("payexpress_user_services");
-        if (saved) { try { return JSON.parse(saved); } catch (e) { return []; } }
-        return [];
-      });
-
-      const [toast, setToast]       = useState(null);
-      const [addModal, setAddModal] = useState(false);
-      const [payModal, setPayModal] = useState(null);
-      const [payStep, setPayStep]   = useState(1);
-      const [payRef, setPayRef]     = useState("");
-      const [receiptModal, setReceiptModal] = useState(null);
-      const [selDay, setSelDay]    = useState(null);
-      const [calMonth, setCalMonth] = useState(new Date().getMonth());
-      const [calYear, setCalYear]   = useState(new Date().getFullYear());
-
-      const [calcBs, setCalcBs]   = useState("");
-      const [calcUsd, setCalcUsd] = useState("");
-      const [filterStatus, setFilterStatus] = useState("all");
-      const [searchTerm, setSearchTerm]     = useState("");
-      const [newSvc, setNewSvc]    = useState({ type: "condominio", name: "", dueDay: 5, amountBs: "", method: "zelle", notes: "" });
-
-      const [isEditingRates, setIsEditingRates] = useState(false);
-      const [tempUsd, setTempUsd] = useState("");
-      const [tempEur, setTempEur] = useState("");
-
-      const { rates, setRates, loading, error, refetch } = useBCVRates();
-      const currentRates = rates;
-
-      useEffect(() => {
-        const shell = document.getElementById("app-shell");
-        if (shell) shell.style.display = "none";
-      }, []);
-
-      useEffect(() => {
-        localStorage.setItem("payexpress_user_services", JSON.stringify(services));
-      }, [services]);
-
-      function notify(msg, type = "success") {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3500);
-      }
-
-      const stats = {
-        pending:  services.filter(s => s.status === "pending").length,
-        overdue:  services.filter(s => s.status === "overdue").length,
-        notified: services.filter(s => s.status === "notified").length,
-        paid:     services.filter(s => s.status === "paid").length,
-      };
-
-      const totalDebt = services
-        .filter(s => s.status === "pending" || s.status === "overdue")
-        .reduce((a, s) => a + s.amountBs, 0);
-
-      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-      const firstDay    = new Date(calYear, calMonth, 1).getDay();
-      const svcForDay   = day => services.filter(s => s.dueDay === day);
-
-      const handlePrevMonth = () => {
-        if (calMonth === 0) { setCalMonth(11); setCalYear(p => p - 1); }
-        else { setCalMonth(p => p - 1); }
-        setSelDay(null);
-      };
-      const handleNextMonth = () => {
-        if (calMonth === 11) { setCalMonth(0); setCalYear(p => p + 1); }
-        else { setCalMonth(p => p + 1); }
-        setSelDay(null);
-      };
-
-      const handleCalcBsChange = (val) => {
-        setCalcBs(val);
-        if (!val || isNaN(val)) setCalcUsd("");
-        else setCalcUsd((parseFloat(val) / currentRates.USD).toFixed(2));
-      };
-      const handleCalcUsdChange = (val) => {
-        setCalcUsd(val);
-        if (!val || isNaN(val)) setCalcBs("");
-        else setCalcBs((parseFloat(val) * currentRates.USD).toFixed(2));
-      };
-
-      function saveManualRates() {
-        const u = parseFloat(tempUsd);
-        const e = parseFloat(tempEur);
-        if (isNaN(u) || isNaN(e) || u <= 0 || e <= 0) { notify("Ingresa números mayores a cero", "error"); return; }
-        const updated = { USD: u, EUR: e, fechaValor: "Tasas manuales fijas", fechaPublicacion: new Date().toLocaleTimeString("es-VE") };
-        setRates(updated);
-        localStorage.setItem("payexpress_cached_rates_v4", JSON.stringify(updated));
-        setIsEditingRates(false);
-        notify("Tasas actualizadas manualmente");
-      }
-
-      function addService() {
-        if (!newSvc.name.trim() || !newSvc.amountBs) { notify("Completa nombre y monto", "error"); return; }
-        const d = parseInt(newSvc.dueDay);
-        if (isNaN(d) || d < 1 || d > 31) { notify("Día inválido", "error"); return; }
-        setServices(p => [...p, { ...newSvc, id: Date.now(), dueDay: d, amountBs: parseFloat(newSvc.amountBs), status: "pending" }]);
-        setAddModal(false);
-        setNewSvc({ type: "condominio", name: "", dueDay: 5, amountBs: "", method: "zelle", notes: "" });
-        notify("Servicio registrado");
-      }
-
-      function deleteService(id) {
-        if (window.confirm("¿Estás seguro de que deseas eliminar este servicio?")) {
-          setServices(p => p.filter(s => s.id !== id));
-          notify("Servicio eliminado");
-        }
-      }
-
-      // ─── COMISIÓN ACTIVA ───────────────────────────────────
-      const pm         = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
-      const commission = payModal ? COMMISSIONS[payModal.method] : null;
-      const amtUSD     = payModal ? payModal.amountBs / currentRates.USD : 0;
-      // Monto de comisión en Bs y USD
-      const commAmtBs  = payModal ? payModal.amountBs * (commission ? commission.total : 0) : 0;
-      const commAmtUSD = payModal ? amtUSD * (commission ? commission.total : 0) : 0;
-      const totalAmtBs = payModal ? payModal.amountBs + commAmtBs : 0;
-      const totalAmtUSD= payModal ? amtUSD + commAmtUSD : 0;
-
-      function notifyPay(svcId) {
-        if (!payRef.trim()) { notify("Ingresa la referencia", "error"); return; }
-        setServices(p => p.map(s => s.id === svcId ? { ...s, status: "notified", ref: payRef } : s));
-        setPayStep(3);
-
-        const commLine = commission && commission.total > 0
-          ? `• *Comisión (${commission.label})*: ${fmtBs(commAmtBs)} (~${fmtUSD(commAmtUSD)})\n• *Total enviado*: ${fmtBs(totalAmtBs)} (~${fmtUSD(totalAmtUSD)})\n`
-          : "";
-
-        const notesLine = payModal.notes
-          ? `\n*Instrucciones de Pago:*\n${payModal.notes}\n`
-          : "";
-
-        const textTemplate =
-          `*Hola PayExpress!*\n\n` +
-          `Acabo de registrar el pago de mi servicio:\n\n` +
-          `• *Servicio*: ${payModal.name}\n` +
-          `• *Monto*: ${fmtBs(payModal.amountBs)} (~${fmtUSD(amtUSD)})\n` +
-          commLine +
-          `• *Método*: ${pm.label}\n` +
-          `• *Referencia*: ${payRef}\n` +
-          notesLine +
-          `\nLes adjunto el capture del pago realizado por este medio.`;
-
-        const waUrl = `https://wa.me/584126780566?text=${encodeURIComponent(textTemplate)}`;
-        window.open(waUrl, "_blank");
-        notify("Redirigiendo a WhatsApp...");
-      }
-
-      function confirmPaid(svc) {
-        setServices(p => p.map(s => s.id === svc.id ? { ...s, status: "paid" } : s));
-        setReceiptModal({ ...svc, status: "paid", ref: svc.ref || "REF-PAGO", paidAt: new Date() });
-        setPayModal(null); setPayStep(1); setPayRef("");
-      }
-
-      const filteredServices = services.filter(s => {
-        const matchesStatus = filterStatus === "all" || s.status === filterStatus;
-        const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearch;
-      });
-
-      // ─── SECCIÓN COMISIONES ────────────────────────────────
-      const commissionsInfo = [
-        { id: "zelle",   label: "Zelle",       flag: "🇺🇸", color: "#8B5CF6", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
-        { id: "zinli",   label: "Zinli",       flag: "🟣", color: "#A78BFA", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
-        { id: "paypal",  label: "PayPal",      flag: "🌐", color: "#3B82F6", pct: "5,5%",  breakdown: ["2% — Comisión PayExpress", "3,5% — Red PayPal"],     note: "PayPal aplica un cargo adicional por procesamiento internacional." },
-        { id: "binance", label: "Binance Pay", flag: "🟡", color: "#FBBF24", pct: "2%",    breakdown: ["2% — Comisión PayExpress"],                          note: "Sin costo adicional de red." },
-      ];
-
-      return (
-        <div style={{ minHeight: "100vh", background: "#0A0C1A", fontFamily: "Inter, system-ui, sans-serif" }}>
-          {toast && <Toast msg={toast.msg} type={toast.type} />}
-
-          <header>
-            <div style={{ background: "#0D0F1C", padding: "0 32px" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 60, flexWrap: "wrap", gap: 8, padding: "8px 0" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
-                  <div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
-                    <div style={{ fontSize: 9, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Pagos · Venezuela</div>
-                  </div>
-                </div>
-                <nav style={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                  {[["dashboard","Dashboard"],["calendar","Calendario"],["services","Servicios"],["rates","Tasas BCV"],["commissions","Comisiones"]].map(([id, label]) => (
-                    <button key={id} className="nav-btn" onClick={() => setTab(id)}
-                      style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>
-                      {label}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </div>
-
-            <div style={{ background: "#0A0C17", borderBottom: "1px solid #1F2937", padding: "10px 24px" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                {isEditingRates ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 12 }}>
-                    <span style={{ color: "#9CA3AF", fontWeight: 600 }}>Ajustar tasas manualmente:</span>
-                    <span style={{ color: "#9CA3AF" }}>USD:</span>
-                    <input type="number" step="0.0001" value={tempUsd} onChange={e => setTempUsd(e.target.value)} style={{ width: 90, padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
-                    <span style={{ color: "#9CA3AF" }}>EUR:</span>
-                    <input type="number" step="0.0001" value={tempEur} onChange={e => setTempEur(e.target.value)} style={{ width: 90, padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
-                    <button onClick={saveManualRates} style={{ background: "#10B981", color: "#FFF", border: "none", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Guardar</button>
-                    <button onClick={() => setIsEditingRates(false)} style={{ background: "#4B5563", color: "#FFF", border: "none", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Cancelar</button>
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-                    <div>
-                      <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, paddingTop: 2 }}>
-                        BCV Tasa de Cambio de Referencia
-                        {loading && <span style={{ color: "#4B5563", marginLeft: 8, fontWeight: 400 }}>⏳ Sincronizando...</span>}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 13, color: "#9CA3AF" }}>🇺🇸 USD</span>
-                          <span style={{ color: "#34D399", fontWeight: 700, fontSize: 16 }}>{currentRates.USD.toFixed(2)} Bs.</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 13, color: "#9CA3AF" }}>🇪🇺 EUR</span>
-                          <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 16 }}>{currentRates.EUR.toFixed(2)} Bs.</span>
-                        </div>
-                        <span style={{ color: "#374151", fontSize: 11 }}>{currentRates.fechaValor}</span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
-                      <button onClick={() => { setTempUsd(currentRates.USD); setTempEur(currentRates.EUR); setIsEditingRates(true); }} style={{ background: "transparent", border: "1px solid #374151", borderRadius: 6, padding: "4px 10px", color: "#9CA3AF", cursor: "pointer", fontSize: 11 }}>
-                        ✏️ Ajustar tasa
-                      </button>
-                      <button onClick={refetch} style={{ background: "transparent", border: "1px solid #4F46E5", borderRadius: 6, padding: "4px 10px", color: "#818CF8", cursor: "pointer", fontSize: 11 }}>Verificar ahora</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </header>
-
-          <main style={{ maxWidth: 1200, margin: "0 auto", padding: "36px 32px" }}>
-
-            {/* ─── DASHBOARD ─── */}
-            {tab === "dashboard" && (
-              <div>
-                <div style={{ marginBottom: 28 }}>
-                  <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Resumen de Pagos</h1>
-                  <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
-                </div>
-                <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
-                  {[{ k: "overdue", label: "Vencidos", icon: "⚠️", accent: "#EF4444" }, { k: "pending", label: "Pendientes", icon: "⏳", accent: "#F59E0B" }, { k: "notified", label: "Notificados", icon: "📨", accent: "#3B82F6" }, { k: "paid", label: "Pagados", icon: "✅", accent: "#10B981" }].map(({ k, label, icon, accent }) => (
-                    <div key={k} style={{ ...S.card, padding: "18px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{ fontSize: 22 }}>{icon}</div>
-                      <div style={{ fontSize: 32, fontWeight: 700, color: accent, lineHeight: 1 }}>{stats[k]}</div>
-                      <div style={{ fontSize: 12, color: "#9CA3AF" }}>{label}</div>
-                    </div>
-                  ))}
-                </div>
-                {totalDebt > 0 && (
-                  <div style={{ background: "#0D0F1C", borderRadius: 18, padding: "24px 28px", marginBottom: 24, border: "1px solid #1E2235" }}>
-                    <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase", marginBottom: 8, fontWeight: 600 }}>Total deuda pendiente de pago</div>
-                    <div className="total-debt-value" style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 18 }}>{fmtBs(totalDebt)}</div>
-                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                      {[{ label: "Equivalente USD", val: fmtUSD(totalDebt / currentRates.USD), color: "#34D399" }, { label: "Equivalente EUR", val: fmtEUR(totalDebt / currentRates.EUR), color: "#60A5FA" }].map(x => (
-                        <div key={x.label} style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 20px", border: "1px solid rgba(255,255,255,.08)" }}>
-                          <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>{x.label}</div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: x.color }}>{x.val}</div>
-                        </div>
-                      ))}
-                      <div style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "12px 20px", border: "1px solid rgba(255,255,255,.08)" }}>
-                        <div style={{ fontSize: 10, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Tasa actual</div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#9CA3AF" }}>1 USD = {currentRates.USD.toFixed(2)} Bs.</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div style={S.card}>
-                  <div style={{ padding: "16px 22px 12px", borderBottom: "1px solid #1F2937", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
-                    <div style={{ fontWeight: 700, fontSize: 17, color: "#fff" }}>Todos los servicios</div>
-                    <button onClick={() => setAddModal(true)} style={S.btn("#4F46E5")}>+ Agregar servicio</button>
-                  </div>
-                  {services.length === 0 && <div style={{ padding: "40px 22px", textAlign: "center", color: "#9CA3AF" }}>Presiona el botón superior para agregar tu primer cobro.</div>}
-                  {services.sort((a, b) => a.dueDay - b.dueDay).map(s => {
-                    const st = SERVICE_TYPES.find(t => t.id === s.type);
-                    const pm = PAY_METHODS.find(p => p.id === s.method);
-                    return (
-                      <div key={s.id} className="svc-row" style={{ padding: "14px 22px", borderBottom: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 24, flexShrink: 0 }}>{st?.icon}</span>
-                        <div style={{ flex: 1, minWidth: 140 }}>
-                          <div style={{ fontWeight: 600, color: "#fff", fontSize: 14 }}>{s.name}</div>
-                          <div style={{ color: "#9CA3AF", fontSize: 12, marginTop: 2 }}>Día {s.dueDay} · {pm?.label} {pm?.flag}{s.notes ? ` · ${s.notes}` : ""}</div>
-                        </div>
-                        <div style={{ textAlign: "right", minWidth: 100 }}>
-                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>{fmtBs(s.amountBs)}</div>
-                          <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>{fmtUSD(s.amountBs / currentRates.USD)} · {fmtEUR(s.amountBs / currentRates.EUR)}</div>
-                        </div>
-                        <Badge status={s.status} />
-                        <div style={{ display: "flex", gap: 8 }}>
-                          {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>}
-                          {s.status === "notified" && <button onClick={() => confirmPaid(s)} style={S.btn("#059669")}>Marcar pagado</button>}
-                          {s.status === "paid" && <button onClick={() => setReceiptModal(s)} style={S.btn("#6B7280")}>Ver recibo</button>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ─── CALENDARIO ─── */}
-            {tab === "calendar" && (
-              <div>
-                <div style={{ marginBottom: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
-                  <div>
-                    <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Calendario de Cobros</h1>
-                    <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Control de fechas límites para el pago de compromisos.</p>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <button onClick={handlePrevMonth} style={{ ...S.btn("#1F2937", "#9CA3AF"), border: "1px solid #374151", padding: "8px 14px" }}>&larr; Anterior</button>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: "#fff", minWidth: 130, textAlign: "center" }}>{MONTHS_FULL[calMonth]} {calYear}</span>
-                    <button onClick={handleNextMonth} style={{ ...S.btn("#1F2937", "#9CA3AF"), border: "1px solid #374151", padding: "8px 14px" }}>Siguiente &rarr;</button>
-                  </div>
-                </div>
-                <div className="calendar-layout" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "start" }}>
-                  <div style={{ ...S.card, padding: 22 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 10, textAlign: "center", fontWeight: 600, color: "#9CA3AF", fontSize: 12 }}>
-                      {WEEKDAYS.map(w => <div key={w} style={{ padding: "8px 0" }}>{w}</div>)}
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
-                      {Array.from({ length: firstDay }).map((_, i) => (<div key={`empty-${i}`} style={{ background: "#161B30", borderRadius: 10, aspectRatio: "1" }}></div>))}
-                      {Array.from({ length: daysInMonth }).map((_, i) => {
-                        const dayNum = i + 1;
-                        const daySvcs = svcForDay(dayNum);
-                        const isSelected = selDay === dayNum;
-                        return (
-                          <div key={`day-${dayNum}`} onClick={() => setSelDay(dayNum)} className="cal-day"
-                            style={{ background: isSelected ? "#242F5C" : "#121626", border: isSelected ? "1.5px solid #6366F1" : "1px solid #1F2937", borderRadius: 10, aspectRatio: "1", padding: 6, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                            <span style={{ fontWeight: 600, color: isSelected ? "#818CF8" : "#fff", fontSize: 13 }}>{dayNum}</span>
-                            {daySvcs.length > 0 && <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{daySvcs.map(s => <span key={s.id} style={{ width: 5, height: 5, borderRadius: "50%", background: STATUS[s.status].dot }} />)}</div>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div style={{ ...S.card, padding: 22, minHeight: 300 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 14 }}>{selDay ? `Día ${selDay} de ${MONTHS_FULL[calMonth]}` : "Selecciona un día"}</h3>
-                    {selDay ? (svcForDay(selDay).length === 0 ? <div style={{ color: "#9CA3AF", fontSize: 13, textAlign: "center", padding: "36px 0" }}>No hay vencimientos programados.</div> :
-                      svcForDay(selDay).map(s => {
-                        const st = SERVICE_TYPES.find(t => t.id === s.type);
-                        return (
-                          <div key={s.id} style={{ padding: "12px 0", borderBottom: "1px solid #1F2937" }}>
-                            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                              <span style={{ fontSize: 18 }}>{st?.icon}</span>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: 13, color: "#fff" }}>{s.name}</div>
-                                <div style={{ color: "#9CA3AF", fontSize: 11 }}>{fmtBs(s.amountBs)}</div>
-                              </div>
-                              <Badge status={s.status} />
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : <div style={{ color: "#9CA3AF", fontSize: 13, textAlign: "center", padding: "36px 0" }}>Selecciona un día del calendario para ver las obligaciones vinculadas a esa fecha.</div>}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ─── SERVICIOS ─── */}
-            {tab === "services" && (
-              <div>
-                <div style={{ marginBottom: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
-                  <div>
-                    <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Directorio de Servicios</h1>
-                    <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Registra y personaliza tus servicios fijos y residenciales.</p>
-                  </div>
-                  <button onClick={() => setAddModal(true)} style={S.btn("#4F46E5")}>+ Registrar nuevo</button>
-                </div>
-                <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap" }}>
-                  <input type="text" placeholder="🔍 Buscar por nombre..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={S.input} />
-                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...S.input, width: "auto" }}>
-                    <option value="all">Todos los estados</option>
-                    <option value="pending">Pendientes</option>
-                    <option value="overdue">Vencidos</option>
-                    <option value="notified">Notificados</option>
-                    <option value="paid">Pagados</option>
-                  </select>
-                </div>
-                <div style={S.card}>
-                  {filteredServices.length === 0 ? <div style={{ padding: "40px 22px", textAlign: "center", color: "#9CA3AF" }}>Sin elementos de servicios registrados.</div> :
-                    filteredServices.map(s => {
-                      const st = SERVICE_TYPES.find(t => t.id === s.type);
-                      const pm = PAY_METHODS.find(p => p.id === s.method);
-                      return (
-                        <div key={s.id} className="svc-row" style={{ padding: "14px 22px", borderBottom: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 24 }}>{st?.icon}</span>
-                          <div style={{ flex: 1, minWidth: 140 }}>
-                            <div style={{ fontWeight: 600, color: "#fff", fontSize: 14 }}>{s.name}</div>
-                            <div style={{ color: "#9CA3AF", fontSize: 12, marginTop: 2 }}>Corte: Día {s.dueDay} · Vía {pm?.label} {pm?.flag}{s.notes ? ` · Notas: ${s.notes}` : ""}</div>
-                          </div>
-                          <div style={{ textAlign: "right" }}>
-                            <div style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>{fmtBs(s.amountBs)}</div>
-                            <div style={{ fontSize: 11, color: "#9CA3AF" }}>~ {fmtUSD(s.amountBs / currentRates.USD)}</div>
-                          </div>
-                          <Badge status={s.status} />
-                          <div style={{ display: "flex", gap: 8 }}>
-                            <button onClick={() => deleteService(s.id)} style={S.btn("#FEE2E2", "#EF4444")}>Eliminar</button>
-                            {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>}
-                          </div>
-                        </div>
-                      );
-                    })
-                  }
-                </div>
-              </div>
-            )}
-
-            {/* ─── TASAS ─── */}
-            {tab === "rates" && (
-              <div>
-                <div style={{ marginBottom: 28 }}>
-                  <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Indicadores cambiarios</h1>
-                  <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Tasas oficiales de referencia en tiempo real.</p>
-                </div>
-                <div className="rates-layout" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "start" }}>
-                  <div style={{ ...S.card, padding: 26 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 18 }}>Valores Sincronizados</h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #1F2937" }}><span style={{ color: "#9CA3AF", fontWeight: 500 }}>Dólar BCV (USD)</span><strong style={{ color: "#10B981", fontSize: 16 }}>{currentRates.USD.toFixed(2)} Bs.</strong></div>
-                      <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #1F2937" }}><span style={{ color: "#9CA3AF", fontWeight: 500 }}>Euro BCV (EUR)</span><strong style={{ color: "#3B82F6", fontSize: 16 }}>{currentRates.EUR.toFixed(2)} Bs.</strong></div>
-                      <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #1F2937" }}><span style={{ color: "#9CA3AF", fontWeight: 500 }}>Última sincronización</span><span style={{ color: "#9CA3AF", fontSize: 13 }}>{currentRates.fechaValor}</span></div>
-                    </div>
-                    <button onClick={refetch} disabled={loading} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 22 }}>{loading ? "Sincronizando..." : "Verificar tasas ahora"}</button>
-                  </div>
-                  <div style={{ ...S.card, padding: 26 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 18 }}>Calculadora Conversora</h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                      <Field label="Monto en Bolívares (Bs.)"><input type="number" placeholder="Introduce el monto en Bs." value={calcBs} onChange={e => handleCalcBsChange(e.target.value)} style={S.input} /></Field>
-                      <Field label="Monto en Dólares (USD)"><input type="number" placeholder="Introduce el monto en USD" value={calcUsd} onChange={e => handleCalcUsdChange(e.target.value)} style={S.input} /></Field>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ─── COMISIONES ─── */}
-            {tab === "commissions" && (
-              <div>
-                <div style={{ marginBottom: 28 }}>
-                  <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Comisiones por Canal de Pago</h1>
-                  <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Conoce la comisión aplicable según el método de pago que elijas.</p>
-                </div>
-
-                {/* Aviso informativo */}
-                <div style={{ background: "rgba(79,70,229,0.1)", border: "1px solid rgba(79,70,229,0.3)", borderRadius: 14, padding: "16px 20px", marginBottom: 24, display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <span style={{ fontSize: 20 }}>ℹ️</span>
-                  <div>
-                    <div style={{ fontWeight: 600, color: "#A5B4FC", fontSize: 14, marginBottom: 4 }}>¿Cómo se calcula la comisión?</div>
-                    <div style={{ color: "#9CA3AF", fontSize: 13, lineHeight: 1.6 }}>
-                      PayExpress aplica una comisión base de <strong style={{ color: "#fff" }}>2%</strong> sobre el monto del servicio por el procesamiento del pago. En el caso de PayPal, se suma adicionalmente el cargo de la red PayPal (<strong style={{ color: "#fff" }}>3,5%</strong>), resultando en un total de <strong style={{ color: "#fff" }}>5,5%</strong>.
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
-                  {commissionsInfo.map(c => (
-                    <div key={c.id} style={{ ...S.card, padding: 24, position: "relative", overflow: "hidden" }}>
-                      {/* Acento de color en la esquina superior */}
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: c.color, borderRadius: "18px 18px 0 0" }} />
-
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                        <span style={{ fontSize: 26 }}>{c.flag}</span>
-                        <div>
-                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 16 }}>{c.label}</div>
-                          <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 1 }}>Canal de pago</div>
-                        </div>
-                        <div style={{ marginLeft: "auto", background: `${c.color}22`, border: `1px solid ${c.color}55`, borderRadius: 10, padding: "6px 14px" }}>
-                          <div style={{ fontSize: 22, fontWeight: 800, color: c.color, lineHeight: 1 }}>{c.pct}</div>
-                          <div style={{ fontSize: 9, color: "#9CA3AF", textAlign: "center", marginTop: 2, textTransform: "uppercase", letterSpacing: "0.06em" }}>comisión</div>
-                        </div>
-                      </div>
-
-                      <div style={{ borderTop: "1px solid #1F2937", paddingTop: 14 }}>
-                        <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Desglose</div>
-                        {c.breakdown.map((line, i) => (
-                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontSize: 13, color: "#D1D5DB" }}>
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
-                            {line}
-                          </div>
-                        ))}
-                        <div style={{ marginTop: 12, fontSize: 12, color: "#6B7280", fontStyle: "italic", lineHeight: 1.5 }}>{c.note}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Tabla resumen */}
-                <div style={{ ...S.card, marginTop: 24 }}>
-                  <div style={{ padding: "16px 22px 12px", borderBottom: "1px solid #1F2937" }}>
-                    <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>Tabla Comparativa de Comisiones</div>
-                    <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>Ejemplo con un pago de 15.000,00 Bs.</div>
-                  </div>
-                  {commissionsInfo.map(c => {
-                    const exampleBs  = 15000;
-                    const commBs     = exampleBs * COMMISSIONS[c.id].total;
-                    const totalBs    = exampleBs + commBs;
-                    const totalUSD   = totalBs / currentRates.USD;
-                    return (
-                      <div key={c.id} style={{ padding: "14px 22px", borderBottom: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 20 }}>{c.flag}</span>
-                        <div style={{ flex: 1, minWidth: 100 }}>
-                          <div style={{ fontWeight: 600, color: "#fff", fontSize: 14 }}>{c.label}</div>
-                          <div style={{ color: "#9CA3AF", fontSize: 12 }}>Comisión: {c.pct}</div>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 12, color: "#9CA3AF" }}>Comisión sobre el monto</div>
-                          <div style={{ fontWeight: 600, color: "#F59E0B", fontSize: 14 }}>+ {fmtBs(commBs)}</div>
-                        </div>
-                        <div style={{ textAlign: "right", minWidth: 130 }}>
-                          <div style={{ fontSize: 12, color: "#9CA3AF" }}>Total a enviar</div>
-                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>{fmtBs(totalBs)}</div>
-                          <div style={{ fontSize: 11, color: "#34D399" }}>~ {fmtUSD(totalUSD)}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </main>
-
-          {/* ─── MODAL AGREGAR ─── */}
-          {addModal && (
-            <Modal title="Agregar Servicio" onClose={() => setAddModal(false)}>
-              <Field label="Clasificación"><select value={newSvc.type} onChange={e => setNewSvc({ ...newSvc, type: e.target.value })} style={S.input}>{SERVICE_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}</select></Field>
-              <Field label="Identificador o Nombre del Servicio"><input type="text" placeholder="Ej. Condominio Residencias El Sol" value={newSvc.name} onChange={e => setNewSvc({ ...newSvc, name: e.target.value })} style={S.input} /></Field>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <Field label="Día de Pago (1 al 31)"><input type="number" min="1" max="31" placeholder="Ej. 5" value={newSvc.dueDay} onChange={e => setNewSvc({ ...newSvc, dueDay: e.target.value })} style={S.input} /></Field>
-                <Field label="Monto mensual base (Bs.)"><input type="number" placeholder="Monto en Bs." value={newSvc.amountBs} onChange={e => setNewSvc({ ...newSvc, amountBs: e.target.value })} style={S.input} /></Field>
-              </div>
-              <Field label="Canal de Pago Preferido"><select value={newSvc.method} onChange={e => setNewSvc({ ...newSvc, method: e.target.value })} style={S.input}>{PAY_METHODS.map(p => <option key={p.id} value={p.id}>{p.flag} {p.label}</option>)}</select></Field>
-              <Field label="Instrucciones de Pago (Banco, N° de Cuenta, Beneficiario, RIF...)"><textarea rows="2" placeholder="Ej. Banco Provincial, Cuenta: 0108-0123456789-000, RIF J-0123456787-9" value={newSvc.notes} onChange={e => setNewSvc({ ...newSvc, notes: e.target.value })} style={{ ...S.input, resize: "none" }} /></Field>
-              <button onClick={addService} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 10 }}>Agregar Servicio</button>
-            </Modal>
-          )}
-
-          {/* ─── MODAL PAGO ─── */}
-          {payModal && pm && commission && (
-            <Modal title={`Emitir Pago: ${payModal.name}`} onClose={() => { setPayModal(null); setPayStep(1); setPayRef(""); }}>
-              {payStep === 1 && (
-                <div>
-                  <div style={{ background: pm.bg, padding: 18, borderRadius: 12, marginBottom: 18, border: `1px solid ${pm.color}40` }}>
-                    <div style={{ fontSize: 12, color: "#fff", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>Información de la Cuenta Receptor</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "6px 0" }}>{pm.label} {pm.flag}</div>
-                    <div style={{ fontSize: 14, fontFamily: "monospace", color: "#9CA3AF" }}>Cuenta destinataria:<br /><strong style={{ fontSize: 15, color: "#fff" }}>{pm.account}</strong></div>
-                  </div>
-
-                  {/* ── DETALLE DE MONTOS CON COMISIÓN ── */}
-                  <div style={{ background: "#0D0F1C", borderRadius: 12, padding: 16, marginBottom: 18, border: "1px solid #1E2235" }}>
-                    <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Desglose del pago</div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>Monto del servicio</span>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{fmtBs(payModal.amountBs)}</span>
-                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>{fmtUSD(amtUSD)}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-                      <div>
-                        <span style={{ color: "#9CA3AF", fontSize: 13 }}>Comisión ({commission.label})</span>
-                        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{commission.detail}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ color: "#F59E0B", fontWeight: 600, fontSize: 13 }}>+ {fmtBs(commAmtBs)}</span>
-                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>+ {fmtUSD(commAmtUSD)}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Total a enviar</span>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ color: "#10B981", fontWeight: 800, fontSize: 20 }}>{fmtBs(totalAmtBs)}</div>
-                        <div style={{ color: "#34D399", fontSize: 13, marginTop: 2 }}>~ {fmtUSD(totalAmtUSD)}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button onClick={() => setPayStep(2)} style={{ ...S.btn("#4F46E5"), width: "100%" }}>Declarar Soporte de Pago</button>
-                </div>
-              )}
-
-              {payStep === 2 && (
-                <div>
-                  {/* Desglose completo en paso 2 — igual que paso 1 */}
-                  <div style={{ background: "#0D0F1C", borderRadius: 12, padding: 16, marginBottom: 18, border: "1px solid #1E2235" }}>
-                    <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Desglose del pago · {pm.label} {pm.flag}</div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>Monto del servicio</span>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{fmtBs(payModal.amountBs)}</span>
-                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>{fmtUSD(amtUSD)}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-                      <div>
-                        <span style={{ color: "#9CA3AF", fontSize: 13 }}>Comisión ({commission.label})</span>
-                        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{commission.detail}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ color: "#F59E0B", fontWeight: 600, fontSize: 13 }}>+ {fmtBs(commAmtBs)}</span>
-                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>+ {fmtUSD(commAmtUSD)}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Total a enviar</span>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ color: "#10B981", fontWeight: 800, fontSize: 20 }}>{fmtBs(totalAmtBs)}</div>
-                        <div style={{ color: "#34D399", fontSize: 13, marginTop: 2 }}>~ {fmtUSD(totalAmtUSD)}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 16 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago de tu servicio.</p>
-                  <Field label="Código de Referencia Bancaria"><input type="text" placeholder="Ej. REF-983172" value={payRef} onChange={e => setPayRef(e.target.value)} style={S.input} /></Field>
-                  <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-                    <button onClick={() => setPayStep(1)} style={{ ...S.btn("#1F2937", "#9CA3AF"), flex: 1 }}>Atrás</button>
-                    <button onClick={() => notifyPay(payModal.id)} style={{ ...S.btn("#059669"), flex: 2 }}>Confirmar Pago</button>
-                  </div>
-                </div>
-              )}
-
-              {payStep === 3 && (
-                <div style={{ textAlign: "center", padding: "14px 0" }}>
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}><span style={{ color: "#059669", fontSize: 28, fontWeight: "bold" }}>✓</span></div>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>Reporte Registrado</h3>
-                  <p style={{ color: "#9CA3AF", fontSize: 13, margin: "8px 0 22px" }}>El soporte ha sido registrado para su procesamiento.</p>
-                  <button onClick={() => { setPayModal(null); setPayStep(1); setPayRef(""); }} style={{ ...S.btn("#111827"), width: "100%" }}>Cerrar</button>
-                </div>
-              )}
-            </Modal>
-          )}
-
-          {/* ─── MODAL RECIBO ─── */}
-          {receiptModal && (
-            <Modal title="Verificación Electrónica" onClose={() => setReceiptModal(null)}>
-              <div style={{ border: "2px dashed #374151", borderRadius: 16, padding: 22, background: "#161B30" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-                  <div><h4 style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>PayExpress</h4><span style={{ fontSize: 10, color: "#9CA3AF" }}>Detalle del Cobro</span></div>
-                  <span style={{ background: "rgba(16,185,129,0.2)", color: "#6EE7B7", padding: "4px 10px", borderRadius: 99, fontSize: 10, fontWeight: 600 }}>PROCESADO</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid #1F2937", paddingTop: 14, fontSize: 13 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Servicio asociado:</span><strong style={{ color: "#fff" }}>{receiptModal.name}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Referencia de Transacción:</span><strong style={{ color: "#fff" }}>{receiptModal.ref || "REF-COMPROBANTE"}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Método utilizado:</span><strong style={{ color: "#fff" }}>{(receiptModal.method || "").toUpperCase()}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Total conciliado:</span><strong style={{ color: "#fff", fontSize: 15 }}>{fmtBs(receiptModal.amountBs)}</strong></div>
-                </div>
-              </div>
-              <button onClick={() => setReceiptModal(null)} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 18 }}>Cerrar</button>
-            </Modal>
-          )}
-
-          <footer style={{ background: "#0D0F1C", marginTop: 48, padding: "28px 32px" }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 20 }}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 4 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
-                  <div style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.6 }}>Pagos de condominios y servicios públicos<br />en Venezuela desde cualquier parte del mundo.</div>
-                </div>
-                <div style={{ display: "flex", gap: 20, fontSize: 12, color: "#4B5563", flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ color: "#9CA3AF", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: 10 }}>Canales de Pago</div>
-                    {PAY_METHODS.map(p => <div key={p.id} style={{ marginBottom: 3 }}>{p.flag} {p.label}</div>)}
-                  </div>
-                  <div>
-                    <div style={{ color: "#9CA3AF", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: 10 }}>Servicios soportados</div>
-                    {SERVICE_TYPES.slice(0, 4).map(t => <div key={t.id} style={{ marginBottom: 3 }}>{t.icon} {t.label}</div>)}
-                  </div>
-                </div>
-              </div>
-              <div style={{ borderTop: "1px solid #1F2937", paddingTop: 18, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "#9CA3AF" }}>© 2026 PayExpress · Tasas Oficiales de Referencia · Pagos Verificados</div>
-                <div style={{ fontSize: 11, color: "#9CA3AF" }}>Valor aplicado: 1 USD = {currentRates.USD.toFixed(2)} Bs. · Sincronización: {currentRates.fechaValor}</div>
-              </div>
-            </div>
-          </footer>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<PayExpress />);
   </script>
 </body>
 </html>
