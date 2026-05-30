@@ -21,7 +21,7 @@
 
     // ─── CONFIGURACIÓN DE TU WHATSAPP ────────────────────────────
     // Coloque su número de WhatsApp Business aquí (Código de país 58 sin el símbolo +)
-    const WHATSAPP_BUSINESS_NUMBER = "584241234567"; 
+    const WHATSAPP_BUSINESS_NUMBER = "584126780566"; 
     
     // La dirección dinámica de su servidor en PythonAnywhere:
     const PYTHONANYWHERE_API_URL = "https://profeluisv.eu.pythonanywhere.com/api/bcv-rates";
@@ -230,8 +230,6 @@
       const [tempUsd, setTempUsd] = useState("");
       const [tempEur, setTempEur] = useState("");
 
-      const [aiUploading, setAiUploading] = useState(false);
-
       const { rates, setRates, loading, error, refetch } = useBCVRates();
       const currentRates = rates;
 
@@ -357,52 +355,6 @@
         setReceiptModal({ ...svc, status: "paid", ref: svc.ref || "REF-PAGO", paidAt: new Date() });
         setPayModal(null); setPayStep(1); setPayRef("");
       }
-
-      const handleAiUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setAiUploading(true);
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          const base64String = reader.result;
-          const isLocalFile = window.location.protocol === "file:";
-          const targetUploadUrl = isLocalFile ? "http://localhost:3000/api/upload-receipt-ai" : "/api/upload-receipt-ai";
-
-          try {
-            const res = await fetch(targetUploadUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                imageBase64: base64String,
-                mimeType: file.type
-              })
-            });
-            if (res.ok) {
-              const data = await res.json();
-              if (data.success && data.extractedData) {
-                const detectedRef = data.extractedData.referenceNumber;
-                if (detectedRef) {
-                  setPayRef(detectedRef);
-                  notify("Comprobante verificado con IA");
-                } else {
-                  notify("No se encontró un código de referencia claro en la imagen", "error");
-                }
-              } else {
-                notify("No se pudo procesar la lectura del comprobante", "error");
-              }
-            } else {
-              notify("Fallo en la comunicación con el servicio de IA de Express", "error");
-            }
-          } catch (err) {
-            console.error("Fallo carga AI OCR:", err);
-            notify("Error al conectar con la IA de Express", "error");
-          } finally {
-            setAiUploading(false);
-          }
-        };
-        reader.readAsDataURL(file);
-      };
 
       const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
       const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
@@ -777,7 +729,7 @@
             </Modal>
           )}
 
-          {/* ─── MODAL: PROCESAR PAGO (CORREGIDO) ────────────────── */}
+          {/* ─── MODAL: PROCESAR PAGO ───────────────────────────── */}
           {payModal && pm && (
             <Modal title={`Emitir Pago: ${payModal.name}`} onClose={() => { setPayModal(null); setPayStep(1); setPayRef(""); }}>
               {payStep === 1 && (
@@ -805,15 +757,6 @@
                 <div>
                   <p style={{ fontSize: 14, color: "#4B5563", marginBottom: 18 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago.</p>
                   
-                  <div style={{ margin: "0 0 18px", padding: 14, border: "1.5px dashed #4F46E5", borderRadius: 10, background: "#EEF2FF", textAlign: "center" }}>
-                    <span style={{ fontSize: 13, display: "block", color: "#4F46E5", fontWeight: 700, marginBottom: 4 }}>🤖 Escaneo Inteligente AI</span>
-                    <span style={{ fontSize: 11, display: "block", color: "#6B7280", marginBottom: 10 }}>Sube la captura de tu transferencia y la IA extraerá el número de transacción</span>
-                    <input type="file" accept="image/*" onChange={handleAiUpload} style={{ display: "none" }} id="ai-uploader" />
-                    <label htmlFor="ai-uploader" style={{ background: "#4F46E5", color: "#FFF", padding: "6px 14px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600, display: "inline-block" }}>
-                      {aiUploading ? "Analizando comprobante..." : "📸 Cargar captura"}
-                    </label>
-                  </div>
-
                   <Field label="Código de Referencia Bancaria">
                     <input type="text" placeholder="Ej. REF-983172" value={payRef} onChange={e => setPayRef(e.target.value)} style={S.input} />
                   </Field>
