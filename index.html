@@ -8,9 +8,44 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
+    /* Estilos Base en Modo Oscuro */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #0A0C1A; color: #FFFFFF; }
+
+    /* Clases Responsivas Nativas */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 36px 32px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .card { background: #121626; border-radius: 16px; border: 1px solid #1F2937; box-shadow: 0 4px 12px rgba(0,0,0,0.2); padding: 20px 22px; }
+    
+    .input-text { 
+      width: 100%; border: 1.5px solid #1F2937; border-radius: 10px; 
+      padding: 11px 14px; font-size: 15px; color: #FFFFFF; background: #161B30; 
+      outline: none; transition: border 0.15s; 
+    }
+    .input-text:focus { border-color: #6366F1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+
+    .btn { 
+      border: none; border-radius: 10px; padding: 11px 22px; cursor: pointer; 
+      font-size: 14px; font-weight: 600; line-height: 1.4; transition: opacity 0.15s; 
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn:hover { opacity: .88; }
+    .btn-primary { background: #4F46E5; color: #fff; }
+    .btn-secondary { background: #1F2937; color: #9CA3AF; border: 1px solid #374151; }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-danger { background: #EF4444; color: #fff; }
+
+    /* Ajustes para Celulares */
+    @media (max-width: 768px) {
+      .main-container { padding: 20px 16px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; margin-bottom: 20px; }
+      .card { padding: 14px 16px; }
+      .header-content { flex-direction: column; height: auto !important; padding: 14px 0; gap: 12px; }
+      .nav-menu { width: 100%; display: flex; justify-content: space-between; gap: 2px; }
+      .nav-btn { flex: 1; text-align: center; padding: 6px 8px !important; font-size: 13px !important; }
+    }
   </style>
 </head>
 <body>
@@ -71,11 +106,6 @@
         transition: "opacity 0.15s, transform 0.1s",
         lineHeight: 1.4,
       }),
-      card: {
-        background: "#121626", borderRadius: 16,
-        border: "1px solid #1F2937",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-      },
     };
 
     function Badge({ status }) {
@@ -151,10 +181,11 @@
         return null;
       };
 
+      // 100% DINÁMICO: Si no hay caché, inicia en 0 sin tasas escritas a mano
       const [rates, setRates] = React.useState(getStoredRates() || {
-        USD: 554.42,
-        EUR: 645.67,
-        fechaValor: "BCV Oficial (Sincronización Inicial)",
+        USD: 0,
+        EUR: 0,
+        fechaValor: "Conectando al BCV...",
         fechaPublicacion: ""
       });
       const [loading, setLoading] = React.useState(true);
@@ -274,13 +305,13 @@
 
       const handleCalcBsChange = (val) => {
         setCalcBs(val);
-        if (!val || isNaN(val)) setCalcUsd("");
+        if (!val || isNaN(val) || currentRates.USD === 0) setCalcUsd("");
         else setCalcUsd((parseFloat(val) / currentRates.USD).toFixed(2));
       };
 
       const handleCalcUsdChange = (val) => {
         setCalcUsd(val);
-        if (!val || isNaN(val)) setCalcBs("");
+        if (!val || isNaN(val) || currentRates.USD === 0) setCalcBs("");
         else setCalcBs((parseFloat(val) * currentRates.USD).toFixed(2));
       };
 
@@ -354,7 +385,7 @@
       }
 
       const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
-      const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
+      const amtUSD = payModal && currentRates.USD > 0 ? payModal.amountBs / currentRates.USD : 0;
 
       const filteredServices = services.filter(s => {
         const matchesStatus = filterStatus === "all" || s.status === filterStatus;
@@ -380,7 +411,7 @@
 
           <header>
             <div style={{ background: "#0D0F1C", padding: "0 32px" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
+              <div className="header-content" style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
                   <div>
@@ -388,9 +419,9 @@
                     <div style={{ fontSize: 10, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 1 }}>Pagos · Venezuela</div>
                   </div>
                 </div>
-                <nav style={{ display: "flex", gap: 2 }}>
+                <nav className="nav-menu" style={{ display: "flex", gap: 2 }}>
                   {[["dashboard", "Dashboard"], ["calendar", "Calendario"], ["services", "Servicios"], ["rates", "Tasas BCV"]].map(([id, label]) => (
-                    <button key={id} className="nav-btn" onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 14, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
+                    <button key={id} className={`nav-btn ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 14, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
                   ))}
                 </nav>
               </div>
@@ -416,11 +447,11 @@
                     
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ color: "#4B5563" }}>🇺🇸 USD</span>
-                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 15 }}>{currentRates.USD.toFixed(2)} Bs.</span>
+                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 15 }}>{currentRates.USD > 0 ? currentRates.USD.toFixed(2) : "..."} Bs.</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ color: "#4B5563" }}>🇪🇺 EUR</span>
-                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 15 }}>{currentRates.EUR.toFixed(2)} Bs.</span>
+                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 15 }}>{currentRates.EUR > 0 ? currentRates.EUR.toFixed(2) : "..."} Bs.</span>
                     </div>
                     
                     <span style={{ color: "#9CA3AF", fontSize: 12 }}>{currentRates.fechaValor}</span>
@@ -435,7 +466,7 @@
             </div>
           </header>
 
-          <main style={{ maxWidth: 1200, margin: "0 auto", padding: "36px 32px" }}>
+          <main className="main-container">
             {/* ─── TAB: DASHBOARD ─────────────────────────────── */}
             {tab === "dashboard" && (
               <div>
@@ -443,21 +474,23 @@
                   <h1 style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Resumen de Pagos</h1>
                   <p style={{ color: "#9CA3AF", fontSize: 15, margin: "6px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 28 }}>
+                
+                <div className="stats-grid">
                   {[{ k: "overdue", label: "Vencidos", icon: "⚠️", accent: "#EF4444" }, { k: "pending", label: "Pendientes", icon: "⏳", accent: "#F59E0B" }, { k: "notified", label: "Notificados", icon: "📨", accent: "#3B82F6" }, { k: "paid", label: "Pagados", icon: "✅", accent: "#10B981" }].map(({ k, label, icon, accent }) => (
-                    <div key={k} style={{ ...S.card, padding: "20px 22px" }}>
+                    <div key={k} className="card">
                       <div style={{ fontSize: 24, marginBottom: 8 }}>{icon}</div>
                       <div style={{ fontSize: 34, fontWeight: 700, color: accent, lineHeight: 1 }}>{stats[k]}</div>
                       <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>{label}</div>
                     </div>
                   ))}
                 </div>
+
                 {totalDebt > 0 && (
                   <div style={{ background: "#0D0F1C", borderRadius: 18, padding: "28px 32px", marginBottom: 28, border: "1px solid #1E2235" }}>
                     <div style={{ fontSize: 11, color: "#9CA3AF", textTransform: "uppercase", marginBottom: 10, fontWeight: 600 }}>Total deuda pendiente de pago</div>
                     <div style={{ fontSize: 42, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 20 }}>{fmtBs(totalDebt)}</div>
                     <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                      {[{ label: "Equivalente USD", val: fmtUSD(totalDebt / currentRates.USD), color: "#34D399" }, { label: "Equivalente EUR", val: fmtEUR(totalDebt / currentRates.EUR), color: "#60A5FA" }].map(x => (
+                      {[{ label: "Equivalente USD", val: currentRates.USD > 0 ? fmtUSD(totalDebt / currentRates.USD) : "...", color: "#34D399" }, { label: "Equivalente EUR", val: currentRates.EUR > 0 ? fmtEUR(totalDebt / currentRates.EUR) : "...", color: "#60A5FA" }].map(x => (
                         <div key={x.label} style={{ background: "rgba(255,255,255,.06)", borderRadius: 12, padding: "14px 22px", border: "1px solid rgba(255,255,255,.08)" }}>
                           <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>{x.label}</div>
                           <div style={{ fontSize: 26, fontWeight: 700, color: x.color }}>{x.val}</div>
@@ -470,10 +503,10 @@
                     </div>
                   </div>
                 )}
-                <div style={S.card}>
+                <div className="card" style={{ padding: 0 }}>
                   <div style={{ padding: "18px 24px 14px", borderBottom: "1px solid #1F2937", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ fontWeight: 700, fontSize: 18, color: "#fff" }}>Todos los servicios</div>
-                    <button onClick={() => setAddModal(true)} style={S.btn("#4F46E5")}>+ Agregar servicio</button>
+                    <button onClick={() => setAddModal(true)} style={{ ...S.btn("#4F46E5"), padding: "9px 18px" }}>+ Agregar servicio</button>
                   </div>
                   {services.length === 0 && <div style={{ padding: "48px 24px", textAlign: "center", color: "#9CA3AF" }}>Presiona el botón superior para agregar tu primer cobro.</div>}
                   {services.sort((a, b) => a.dueDay - b.dueDay).map(s => {
@@ -488,13 +521,13 @@
                         </div>
                         <div style={{ textAlign: "right", minWidth: 110 }}>
                           <div style={{ fontWeight: 700, color: "#fff", fontSize: 16 }}>{fmtBs(s.amountBs)}</div>
-                          <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>{fmtUSD(s.amountBs / currentRates.USD)} · {fmtEUR(s.amountBs / currentRates.EUR)}</div>
+                          <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>{currentRates.USD > 0 ? fmtUSD(s.amountBs / currentRates.USD) : "..."} · {currentRates.EUR > 0 ? fmtEUR(s.amountBs / currentRates.EUR) : "..."}</div>
                         </div>
                         <Badge status={s.status} />
                         <div style={{ display: "flex", gap: 8 }}>
-                          {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={S.btn("#4F46E5")}>Pagar</button>}
-                          {s.status === "notified" && <button onClick={() => confirmPaid(s)} style={S.btn("#059669")}>Marcar pagado</button>}
-                          {s.status === "paid" && <button onClick={() => setReceiptModal(s)} style={S.btn("#6B7280")}>Ver recibo</button>}
+                          {(s.status === "pending" || s.status === "overdue") && <button onClick={() => { setPayModal(s); setPayStep(1); setPayRef(""); }} style={{ ...S.btn("#4F46E5"), padding: "8px 16px" }}>Pagar</button>}
+                          {s.status === "notified" && <button onClick={() => confirmPaid(s)} style={{ ...S.btn("#059669"), padding: "8px 16px" }}>Marcar pagado</button>}
+                          {s.status === "paid" && <button onClick={() => setReceiptModal(s)} style={{ ...S.btn("#6B7280"), padding: "8px 16px" }}>Ver recibo</button>}
                         </div>
                       </div>
                     );
@@ -520,8 +553,8 @@
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, alignItems: "start" }}>
-                  <div style={{ ...S.card, padding: 24 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, alignItems: "start" }}>
+                  <div className="card" style={{ padding: 24 }}>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 12, textAlign: "center", fontWeight: 600, color: "#9CA3AF", fontSize: 13 }}>
                       {WEEKDAYS.map(w => <div key={w} style={{ padding: "8px 0" }}>{w}</div>)}
                     </div>
@@ -554,7 +587,7 @@
                     </div>
                   </div>
 
-                  <div style={{ ...S.card, padding: 24, minHeight: 320 }}>
+                  <div className="card" style={{ padding: 24, minHeight: 320 }}>
                     <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 16 }}>
                       {selDay ? `Día ${selDay} de ${MONTHS_FULL[calMonth]}` : "Selecciona un día"}
                     </h3>
@@ -613,7 +646,7 @@
                   </select>
                 </div>
 
-                <div style={S.card}>
+                <div className="card" style={{ padding: 0 }}>
                   {filteredServices.length === 0 ? (
                     <div style={{ padding: "48px 24px", textAlign: "center", color: "#9CA3AF" }}>Sin elementos de servicios registrados.</div>
                   ) : (
@@ -632,7 +665,7 @@
                           </div>
                           <div style={{ textAlign: "right" }}>
                             <div style={{ fontWeight: 700, color: "#fff", fontSize: 16 }}>{fmtBs(s.amountBs)}</div>
-                            <div style={{ fontSize: 12, color: "#9CA3AF" }}>~ {fmtUSD(s.amountBs / currentRates.USD)}</div>
+                            <div style={{ fontSize: 12, color: "#9CA3AF" }}>~ {currentRates.USD > 0 ? fmtUSD(s.amountBs / currentRates.USD) : "..."}</div>
                           </div>
                           <Badge status={s.status} />
                           <div style={{ display: "flex", gap: 8 }}>
@@ -657,17 +690,17 @@
                   <p style={{ color: "#9CA3AF", fontSize: 15, margin: "6px 0 0" }}>Tasas oficiales de referencia en tiempo real.</p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start", flexWrap: "wrap" }}>
-                  <div style={{ ...S.card, padding: 28 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, alignItems: "start", flexWrap: "wrap" }}>
+                  <div className="card" style={{ padding: 28 }}>
                     <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Valores Sincronizados</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #1F2937" }}>
                         <span style={{ color: "#9CA3AF", fontWeight: 500 }}>Dólar BCV (USD)</span>
-                        <strong style={{ color: "#10B981", fontSize: 18 }}>{currentRates.USD.toFixed(2)} Bs.</strong>
+                        <strong style={{ color: "#10B981", fontSize: 18 }}>{currentRates.USD > 0 ? currentRates.USD.toFixed(2) : "..."} Bs.</strong>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #1F2937" }}>
                         <span style={{ color: "#9CA3AF", fontWeight: 500 }}>Euro BCV (EUR)</span>
-                        <strong style={{ color: "#3B82F6", fontSize: 18 }}>{currentRates.EUR.toFixed(2)} Bs.</strong>
+                        <strong style={{ color: "#3B82F6", fontSize: 18 }}>{currentRates.EUR > 0 ? currentRates.EUR.toFixed(2) : "..."} Bs.</strong>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #1F2937" }}>
                         <span style={{ color: "#9CA3AF", fontWeight: 500 }}>Última sincronización</span>
@@ -679,7 +712,7 @@
                     </button>
                   </div>
 
-                  <div style={{ ...S.card, padding: 28 }}>
+                  <div className="card" style={{ padding: 28 }}>
                     <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Calculadora Conversora</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                       <Field label="Monto en Bolívares (Bs.)">
