@@ -979,15 +979,35 @@
 
               {payStep === 2 && (
                 <div>
-                  {/* Resumen compacto en paso 2 */}
-                  <div style={{ background: "#0D0F1C", borderRadius: 10, padding: "12px 16px", marginBottom: 16, border: "1px solid #1E2235", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontSize: 11, color: "#9CA3AF" }}>Total a enviar vía {pm.label}</div>
-                      <div style={{ fontWeight: 700, color: "#10B981", fontSize: 18 }}>{fmtBs(totalAmtBs)}</div>
+                  {/* Desglose completo en paso 2 — igual que paso 1 */}
+                  <div style={{ background: "#0D0F1C", borderRadius: 12, padding: 16, marginBottom: 18, border: "1px solid #1E2235" }}>
+                    <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Desglose del pago · {pm.label} {pm.flag}</div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>Monto del servicio</span>
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{fmtBs(payModal.amountBs)}</span>
+                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>{fmtUSD(amtUSD)}</span>
+                      </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 11, color: "#9CA3AF" }}>Incluye comisión {commission.label}</div>
-                      <div style={{ color: "#F59E0B", fontSize: 13, fontWeight: 600 }}>+ {fmtBs(commAmtBs)}</div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
+                      <div>
+                        <span style={{ color: "#9CA3AF", fontSize: 13 }}>Comisión ({commission.label})</span>
+                        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{commission.detail}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ color: "#F59E0B", fontWeight: 600, fontSize: 13 }}>+ {fmtBs(commAmtBs)}</span>
+                        <span style={{ color: "#9CA3AF", fontSize: 11, display: "block" }}>+ {fmtUSD(commAmtUSD)}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Total a enviar</span>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ color: "#10B981", fontWeight: 800, fontSize: 20 }}>{fmtBs(totalAmtBs)}</div>
+                        <div style={{ color: "#34D399", fontSize: 13, marginTop: 2 }}>~ {fmtUSD(totalAmtUSD)}</div>
+                      </div>
                     </div>
                   </div>
 
