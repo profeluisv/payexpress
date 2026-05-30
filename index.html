@@ -96,12 +96,12 @@
       display: flex; align-items: center; gap: 10px;
     }
     #app-shell .shell-logo-icon {
-      width: 36px; height: 36px; border-radius: 10px;
+      width: 42px; height: 42px; border-radius: 12px;
       background: linear-gradient(135deg,#4F46E5,#7C3AED);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -1px;
+      font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -1px;
     }
-    #app-shell .shell-logo-text { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1; }
+    #app-shell .shell-logo-text { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1; }
     #app-shell .shell-logo-sub { font-size: 9px; color: #6B7280; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
     #app-shell .shell-nav { display: flex; gap: 4px; }
     #app-shell .shell-nav-btn {
@@ -150,6 +150,9 @@
     #root:not(:empty) ~ #app-shell,
     #root:not(:empty) + #app-shell { display: none !important; }
 
+    /* Ticker de tasas: horizontal en desktop, columna en móvil */
+    .rates-ticker { display: flex; align-items: center; gap: 20px; }
+
     @media (max-width: 768px) {
       header > div:first-child { padding: 0 16px !important; }
       nav { gap: 0 !important; flex-wrap: wrap; justify-content: center; }
@@ -161,6 +164,9 @@
       .calendar-layout { grid-template-columns: 1fr !important; gap: 16px !important; }
       .dashboard-header { font-size: 22px !important; }
       .total-debt-value { font-size: 28px !important; }
+
+      /* Tasas en columna vertical en móvil */
+      .rates-ticker { flex-direction: column; align-items: flex-start; gap: 4px; }
 
       /* Shell mobile */
       #app-shell .shell-header { padding: 0 16px; }
@@ -588,10 +594,10 @@
             <div style={{ background: "#0D0F1C", padding: "0 32px" }}>
               <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexWrap: "wrap", gap: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
-                    <div style={{ fontSize: 9, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 1 }}>Pagos · Venezuela</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
+                    <div style={{ fontSize: 9, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Pagos · Venezuela</div>
                   </div>
                 </div>
                 <nav style={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -620,13 +626,15 @@
                     {loading && <span style={{ color: "#6B7280" }}>⏳ Conectando al BCV...</span>}
                     {error && <span style={{ color: "#9CA3AF" }}>🔌 Sincronizado</span>}
                     
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ color: "#4B5563" }}>🇺🇸 USD</span>
-                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 14 }}>{currentRates.USD.toFixed(2)} Bs.</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ color: "#4B5563" }}>🇪🇺 EUR</span>
-                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 14 }}>{currentRates.EUR.toFixed(2)} Bs.</span>
+                    <div className="rates-ticker">
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ color: "#4B5563" }}>🇺🇸 USD</span>
+                        <span style={{ color: "#34D399", fontWeight: 700, fontSize: 14 }}>{currentRates.USD.toFixed(2)} Bs.</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ color: "#4B5563" }}>🇪🇺 EUR</span>
+                        <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 14 }}>{currentRates.EUR.toFixed(2)} Bs.</span>
+                      </div>
                     </div>
                     
                     <span style={{ color: "#9CA3AF", fontSize: 11 }}>{currentRates.fechaValor}</span>
