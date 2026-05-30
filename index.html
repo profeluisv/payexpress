@@ -26,6 +26,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    /* Estilos Base en Modo Oscuro */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
     body {
@@ -46,7 +47,7 @@
     .cal-day { transition: background 0.15s, border-color 0.15s; cursor: pointer; }
     .cal-day:hover { background: #1E2540 !important; }
     
-    /* ─── CLASES BASE (PARA COMPUTADORES DE ESCRITORIO) ─── */
+    /* Clases de Maquetación */
     .main-container { 
       max-width: 1200px; 
       margin: 0 auto; 
@@ -55,7 +56,7 @@
     
     .stats-grid { 
       display: grid; 
-      grid-template-columns: repeat(4, 1fr); /* 4 Columnas horizontales en PC */
+      grid-template-columns: repeat(4, 1fr); 
       gap: 14px; 
       margin-bottom: 28px; 
     }
@@ -95,7 +96,7 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
 
-    /* ─── AJUSTES RESPONSIVOS PARA CELULARES ─── */
+    /* Ajustes Responsivos para Celulares */
     @media (max-width: 768px) {
       .main-container { padding: 20px 16px !important; }
       nav { gap: 0 !important; flex-wrap: wrap; justify-content: center; }
@@ -103,7 +104,7 @@
       main { padding: 24px 16px !important; }
       .modal-overlay { padding: 0; align-items: flex-end; }
       .modal-content { max-width: 100%; max-height: 95vh; border-radius: 20px 20px 0 0; width: 100%; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; } /* Rejilla de 2x2 en celulares */
+      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
       .calendar-layout { grid-template-columns: 1fr !important; gap: 16px !important; }
       .dashboard-header { font-size: 24px !important; }
       .total-debt-value { font-size: 32px !important; }
@@ -118,7 +119,30 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  
+  <!-- ─── PRE-RENDERIZADO ESTÁTICO PARA EL ROBOT DE VERCEL ─── -->
+  <div id="root">
+    <div style="minHeight: 100vh; background: #0A0C1A; font-family: 'Inter', sans-serif;">
+      <header>
+        <div style="background: #0D0F1C; padding: 0 32px;">
+          <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#4F46E5,#7C3AED); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff;">P</div>
+              <div>
+                <div style="font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.03em;">PayExpress</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="main-container">
+        <div style="margin-bottom: 28px;">
+          <h1 style="font-size: 28px; font-weight: 700; color: #fff; margin: 0;">Resumen de Pagos</h1>
+          <p style="color: #9CA3AF; font-size: 14px; margin-top: 4px;">Sincronizando cobros e indicadores cambiarios...</p>
+        </div>
+      </main>
+    </div>
+  </div>
 
   <script type="text/babel">
     const { useState, useEffect, useCallback } = React;
@@ -172,7 +196,12 @@
         padding: "12px 24px", cursor: "pointer",
         fontSize: 14, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif",
         transition: "opacity 0.2s, transform 0.1s", lineHeight: 1.4
-      })
+      }),
+      card: {
+        background: "#121626", borderRadius: 18,
+        border: "1px solid #1F2937",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      },
     };
 
     function Badge({ status }) {
@@ -439,32 +468,32 @@
 
           <header>
             <div style={{ background: "#0D0F1C", padding: "0 32px" }}>
-              <div className="header-content" style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
+              <div className="header-content" style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -1 }}>P</div>
                   <div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
-                    <div style={{ fontSize: 10, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 1 }}>Pagos · Venezuela</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>Pay<span style={{ color: "#818CF8" }}>Express</span></div>
+                    <div style={{ fontSize: 9, color: "#6B7280", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 1 }}>Pagos · Venezuela</div>
                   </div>
                 </div>
                 <nav className="nav-menu" style={{ display: "flex", gap: 2 }}>
                   {[["dashboard", "Dashboard"], ["calendar", "Calendario"], ["services", "Servicios"], ["rates", "Tasas BCV"]].map(([id, label]) => (
-                    <button key={id} className={`nav-btn ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 14, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
+                    <button key={id} className={`nav-btn ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)} style={{ background: tab === id ? "rgba(79,70,229,.9)" : "transparent", color: tab === id ? "#fff" : "#9CA3AF", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 600 : 400 }}>{label}</button>
                   ))}
                 </nav>
               </div>
             </div>
 
-            <div style={{ background: "#0A0C17", borderBottom: "1px solid #1F2937", padding: "8px 32px" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", gap: 32, fontSize: 13, flexWrap: "wrap" }}>
+            <div style={{ background: "#0A0C17", borderBottom: "1px solid #1F2937", padding: "6px 24px" }}>
+              <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", gap: 20, fontSize: 12, flexWrap: "wrap" }}>
                 <span style={{ color: "#4B5563", fontWeight: 500 }}>BCV Oficial</span>
                 
                 {isEditingRates ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{ color: "#9CA3AF" }}>USD:</span>
-                    <input type="number" step="0.0001" value={tempUsd} onChange={e => setTempUsd(e.target.value)} style={{ width: 100, padding: "3px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
+                    <input type="number" step="0.0001" value={tempUsd} onChange={e => setTempUsd(e.target.value)} style={{ width: 90, padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
                     <span style={{ color: "#9CA3AF" }}>EUR:</span>
-                    <input type="number" step="0.0001" value={tempEur} onChange={e => setTempEur(e.target.value)} style={{ width: 100, padding: "3px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
+                    <input type="number" step="0.0001" value={tempEur} onChange={e => setTempEur(e.target.value)} style={{ width: 90, padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #4F46E5", background: "#1F2937", color: "#FFF", outline: "none" }} />
                     <button onClick={saveManualRates} style={{ background: "#10B981", color: "#FFF", border: "none", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Guardar</button>
                     <button onClick={() => setIsEditingRates(false)} style={{ background: "#4B5563", color: "#FFF", border: "none", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Cancelar</button>
                   </div>
@@ -473,16 +502,16 @@
                     {loading && <span style={{ color: "#6B7280" }}>⏳ Conectando al BCV...</span>}
                     {error && <span style={{ color: "#9CA3AF" }}>🔌 Sincronizado</span>}
                     
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ color: "#4B5563" }}>🇺🇸 USD</span>
-                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 15 }}>{currentRates.USD > 0 ? currentRates.USD.toFixed(2) : "..."} Bs.</span>
+                      <span style={{ color: "#34D399", fontWeight: 700, fontSize: 14 }}>{currentRates.USD > 0 ? currentRates.USD.toFixed(2) : "..."} Bs.</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ color: "#4B5563" }}>🇪🇺 EUR</span>
-                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 15 }}>{currentRates.EUR > 0 ? currentRates.EUR.toFixed(2) : "..."} Bs.</span>
+                      <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: 14 }}>{currentRates.EUR > 0 ? currentRates.EUR.toFixed(2) : "..."} Bs.</span>
                     </div>
                     
-                    <span style={{ color: "#9CA3AF", fontSize: 12 }}>{currentRates.fechaValor}</span>
+                    <span style={{ color: "#9CA3AF", fontSize: 11 }}>{currentRates.fechaValor}</span>
                     
                     <button onClick={() => { setTempUsd(currentRates.USD); setTempEur(currentRates.EUR); setIsEditingRates(true); }} style={{ background: "transparent", border: "1px solid #374151", borderRadius: 6, padding: "2px 8px", color: "#9CA3AF", cursor: "pointer", fontSize: 11 }}>
                       ✏️ Ajustar tasa
@@ -495,19 +524,20 @@
           </header>
 
           <main className="main-container">
-            {/* ─── TAB: DASHBOARD ─────────────────────────────── */}
+            {/* ─── TAB: DASHBOARD ─── */}
             {tab === "dashboard" && (
               <div>
-                <div style={{ marginBottom: 32 }}>
+                <div style={{ marginBottom: 28 }}>
                   <h1 className="dashboard-header" style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>Resumen de Pagos</h1>
-                  <p style={{ color: "#9CA3AF", fontSize: 15, margin: "6px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
+                  <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.</p>
                 </div>
                 
+                {/* Rejilla de cartas adaptada responsivamente */}
                 <div className="stats-grid">
                   {[{ k: "overdue", label: "Vencidos", icon: "⚠️", accent: "#EF4444" }, { k: "pending", label: "Pendientes", icon: "⏳", accent: "#F59E0B" }, { k: "notified", label: "Notificados", icon: "📨", accent: "#3B82F6" }, { k: "paid", label: "Pagados", icon: "✅", accent: "#10B981" }].map(({ k, label, icon, accent }) => (
                     <div key={k} className="card" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{ fontSize: 24, marginBottom: 8 }}>{icon}</div>
-                      <div style={{ fontSize: 34, fontWeight: 700, color: accent, lineHeight: 1 }}>{stats[k]}</div>
+                      <div style={{ fontSize: 22 }}>{icon}</div>
+                      <div style={{ fontSize: 32, fontWeight: 700, color: accent, lineHeight: 1 }}>{stats[k]}</div>
                       <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>{label}</div>
                     </div>
                   ))}
@@ -564,7 +594,7 @@
               </div>
             )}
 
-            {/* ─── TAB: CALENDARIO ────────────────────────────── */}
+            {/* ─── TAB: CALENDARIO ─── */}
             {tab === "calendar" && (
               <div>
                 <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
@@ -755,49 +785,29 @@
             )}
           </main>
 
-          {/* ─── MODAL: REGISTRAR SERVICIO ──────────────────────── */}
+          {/* ─── MODALES ─── */}
           {addModal && (
             <Modal title="Agregar Servicio" onClose={() => setAddModal(false)}>
-              <Field label="Clasificación">
-                <select value={newSvc.type} onChange={e => setNewSvc({ ...newSvc, type: e.target.value })} style={S.input}>
-                  {SERVICE_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
-                </select>
-              </Field>
-              <Field label="Identificador o Nombre del Servicio">
-                <input type="text" placeholder="Ej. Condominio Residencias El Sol" value={newSvc.name} onChange={e => setNewSvc({ ...newSvc, name: e.target.value })} style={S.input} />
-              </Field>
+              <Field label="Clasificación"><select value={newSvc.type} onChange={e => setNewSvc({ ...newSvc, type: e.target.value })} style={S.input}>{SERVICE_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}</select></Field>
+              <Field label="Identificador o Nombre del Servicio"><input type="text" placeholder="Ej. Condominio Residencias El Sol" value={newSvc.name} onChange={e => setNewSvc({ ...newSvc, name: e.target.value })} style={S.input} /></Field>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                <Field label="Día de Pago (1 al 31)">
-                  <input type="number" min="1" max="31" placeholder="Ej. 5" value={newSvc.dueDay} onChange={e => setNewSvc({ ...newSvc, dueDay: e.target.value })} style={S.input} />
-                </Field>
-                <Field label="Monto mensual base (Bs.)">
-                  <input type="number" placeholder="Monto en Bs." value={newSvc.amountBs} onChange={e => setNewSvc({ ...newSvc, amountBs: e.target.value })} style={S.input} />
-                </Field>
+                <Field label="Día de Pago (1 al 31)"><input type="number" min="1" max="31" placeholder="Ej. 5" value={newSvc.dueDay} onChange={e => setNewSvc({ ...newSvc, dueDay: e.target.value })} style={S.input} /></Field>
+                <Field label="Monto mensual base (Bs.)"><input type="number" placeholder="Monto en Bs." value={newSvc.amountBs} onChange={e => setNewSvc({ ...newSvc, amountBs: e.target.value })} style={S.input} /></Field>
               </div>
-              <Field label="Canal de Pago Preferido">
-                <select value={newSvc.method} onChange={e => setNewSvc({ ...newSvc, method: e.target.value })} style={S.input}>
-                  {PAY_METHODS.map(p => <option key={p.id} value={p.id}>{p.flag} {p.label}</option>)}
-                </select>
-              </Field>
-              <Field label="Detalles opcionales (Contrato, medidor...)">
-                <textarea rows="2" placeholder="Ej. Apto 3B, Torre A" value={newSvc.notes} onChange={e => setNewSvc({ ...newSvc, notes: e.target.value })} style={{ ...S.input, resize: "none" }} />
-              </Field>
+              <Field label="Canal de Pago Preferido"><select value={newSvc.method} onChange={e => setNewSvc({ ...newSvc, method: e.target.value })} style={S.input}>{PAY_METHODS.map(p => <option key={p.id} value={p.id}>{p.flag} {p.label}</option>)}</select></Field>
+              <Field label="Detalles opcionales (Contrato, medidor...)"><textarea rows="2" placeholder="Ej. Apto 3B, Torre A" value={newSvc.notes} onChange={e => setNewSvc({ ...newSvc, notes: e.target.value })} style={{ ...S.input, resize: "none" }} /></Field>
               <button onClick={addService} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 12 }}>Agregar Servicio</button>
             </Modal>
           )}
 
-          {/* ─── MODAL: PROCESAR PAGO ───────────────────────────── */}
           {payModal && pm && (
             <Modal title={`Emitir Pago: ${payModal.name}`} onClose={() => { setPayModal(null); setPayStep(1); setPayRef(""); }}>
               {payStep === 1 && (
                 <div>
                   <div style={{ background: pm.bg, padding: 20, borderRadius: 12, marginBottom: 20, border: `1px solid ${pm.color}40` }}>
                     <div style={{ fontSize: 13, color: "#fff", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>Información de la Cuenta Receptor</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "8px 0" }}>{pm.label} {pm.flag}</div>
-                    <div style={{ fontSize: 15, fontFamily: "monospace", color: "#9CA3AF" }}>
-                      Cuenta destinataria:<br />
-                      <strong style={{ fontSize: 16, color: "#fff" }}>{pm.account}</strong>
-                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "6px 0" }}>{pm.label} {pm.flag}</div>
+                    <div style={{ fontSize: 14, fontFamily: "monospace", color: "#9CA3AF" }}>Cuenta destinataria:<br /><strong style={{ fontSize: 15, color: "#fff" }}>{pm.account}</strong></div>
                   </div>
                   <div style={{ marginBottom: 20 }}>
                     <span style={{ display: "block", color: "#9CA3AF", fontSize: 13, marginBottom: 4 }}>Total adeudado</span>
@@ -809,32 +819,19 @@
                   <button onClick={() => setPayStep(2)} style={{ ...S.btn("#4F46E5"), width: "100%" }}>Declarar Soporte de Pago</button>
                 </div>
               )}
-
               {payStep === 2 && (
                 <div>
                   <p style={{ fontSize: 14, color: "#9CA3AF", marginBottom: 18 }}>Ingresa el número de confirmación o referencia bancaria para asociar el pago de tu servicio.</p>
-
-                  <Field label="Código de Referencia Bancaria">
-                    <input 
-                      type="text" 
-                      placeholder="Ej. REF-983172" 
-                      value={payRef} 
-                      onChange={e => setPayRef(e.target.value)} 
-                      style={S.input} 
-                    />
-                  </Field>
+                  <Field label="Código de Referencia Bancaria"><input type="text" placeholder="Ej. REF-983172" value={payRef} onChange={e => setPayRef(e.target.value)} style={S.input} /></Field>
                   <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                     <button onClick={() => setPayStep(1)} style={{ ...S.btn("#1F2937", "#9CA3AF"), flex: 1 }}>Atrás</button>
                     <button onClick={() => notifyPay(payModal.id)} style={{ ...S.btn("#059669"), flex: 2 }}>Confirmar Pago</button>
                   </div>
                 </div>
               )}
-
               {payStep === 3 && (
                 <div style={{ textAlign: "center", padding: "16px 0" }}>
-                  <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-                    <span style={{ color: "#059669", fontSize: 32, fontWeight: "bold" }}>✓</span>
-                  </div>
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><span style={{ color: "#059669", fontSize: 32, fontWeight: "bold" }}>✓</span></div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>Reporte Registrado</h3>
                   <p style={{ color: "#9CA3AF", fontSize: 14, margin: "8px 0 24px" }}>El soporte ha sido registrado para su procesamiento.</p>
                   <button onClick={() => { setPayModal(null); setPayStep(1); setPayRef(""); }} style={{ ...S.btn("#111827"), width: "100%" }}>Cerrar</button>
@@ -843,35 +840,18 @@
             </Modal>
           )}
 
-          {/* ─── MODAL: COMPROBANTE DIGITAL ─────────────────────── */}
           {receiptModal && (
             <Modal title="Verificación Electrónica" onClose={() => setReceiptModal(null)}>
               <div style={{ border: "2px dashed #374151", borderRadius: 16, padding: 24, background: "#161B30" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                  <div>
-                    <h4 style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>PayExpress</h4>
-                    <span style={{ fontSize: 11, color: "#9CA3AF" }}>Detalle del Cobro</span>
-                  </div>
+                  <div><h4 style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>PayExpress</h4><span style={{ fontSize: 11, color: "#9CA3AF" }}>Detalle del Cobro</span></div>
                   <span style={{ background: "rgba(16,185,129,0.2)", color: "#6EE7B7", padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600 }}>PROCESADO</span>
                 </div>
-                
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, borderTop: "1px solid #1F2937", paddingTop: 16, fontSize: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "#9CA3AF" }}>Servicio asociado:</span>
-                    <strong style={{ color: "#fff" }}>{receiptModal.name}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "#9CA3AF" }}>Referencia de Transacción:</span>
-                    <strong style={{ color: "#fff" }}>{receiptModal.ref || "REF-COMPROBANTE"}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "#9CA3AF" }}>Método utilizado:</span>
-                    <strong style={{ color: "#fff" }}>{(receiptModal.method || "").toUpperCase()}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "#9CA3AF" }}>Total conciliado:</span>
-                    <strong style={{ color: "#fff", fontSize: 16 }}>{fmtBs(receiptModal.amountBs)}</strong>
-                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Servicio asociado:</span><strong style={{ color: "#fff" }}>{receiptModal.name}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Referencia de Transacción:</span><strong style={{ color: "#fff" }}>{receiptModal.ref || "REF-COMPROBANTE"}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Método utilizado:</span><strong style={{ color: "#fff" }}>{(receiptModal.method || "").toUpperCase()}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#9CA3AF" }}>Total conciliado:</span><strong style={{ color: "#fff", fontSize: 16 }}>{fmtBs(receiptModal.amountBs)}</strong></div>
                 </div>
               </div>
               <button onClick={() => setReceiptModal(null)} style={{ ...S.btn("#4F46E5"), width: "100%", marginTop: 20 }}>Cerrar</button>
