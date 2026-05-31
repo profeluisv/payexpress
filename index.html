@@ -268,7 +268,7 @@ const PAY_METHODS = [{
   icon: "Z",
   color: "#8B5CF6",
   bg: "#2E1A47",
-  account: "fehustore@gmail.com",
+  account: "pagos@payexpress.com",
   flag: "🇺🇸"
 }, {
   id: "zinli",
@@ -276,7 +276,7 @@ const PAY_METHODS = [{
   icon: "Zi",
   color: "#A78BFA",
   bg: "#2A1F45",
-  account: "LVHP2000@yahoo.com",
+  account: "@payexpress_ve",
   flag: "🟣"
 }, {
   id: "paypal",
@@ -284,7 +284,7 @@ const PAY_METHODS = [{
   icon: "PP",
   color: "#3B82F6",
   bg: "#1E2A4A",
-  account: "@profeluisv",
+  account: "pagos@payexpress.com",
   flag: "🌐"
 }, {
   id: "binance",
@@ -292,7 +292,7 @@ const PAY_METHODS = [{
   icon: "Bn",
   color: "#FBBF24",
   bg: "#3D301A",
-  account: "ID: 36908359",
+  account: "PayExpressVE",
   flag: "🟡"
 }];
 const SERVICE_TYPES = [{
@@ -632,6 +632,10 @@ function PayExpress() {
     _useState12 = _slicedToArray(_useState11, 2),
     payRef = _useState12[0],
     setPayRef = _useState12[1];
+  const _useStatePayAmt = useState(""),
+    _useStatePayAmt2 = _slicedToArray(_useStatePayAmt, 2),
+    payAmountBs = _useStatePayAmt2[0],
+    setPayAmountBs = _useStatePayAmt2[1];
   const _useState13 = useState(null),
     _useState14 = _slicedToArray(_useState13, 2),
     receiptModal = _useState14[0],
@@ -668,7 +672,6 @@ function PayExpress() {
       type: "condominio",
       name: "",
       dueDay: 5,
-      amountBs: "",
       method: "zelle",
       notes: ""
     }),
@@ -764,8 +767,8 @@ function PayExpress() {
     notify("Tasas actualizadas manualmente");
   }
   function addService() {
-    if (!newSvc.name.trim() || !newSvc.amountBs) {
-      notify("Completa nombre y monto", "error");
+    if (!newSvc.name.trim()) {
+      notify("Completa el nombre del servicio", "error");
       return;
     }
     const d = parseInt(newSvc.dueDay);
@@ -776,7 +779,7 @@ function PayExpress() {
     setServices(p => [...p, _objectSpread(_objectSpread({}, newSvc), {}, {
       id: Date.now(),
       dueDay: d,
-      amountBs: parseFloat(newSvc.amountBs),
+      amountBs: 0,
       status: "pending"
     })]);
     setAddModal(false);
@@ -784,7 +787,6 @@ function PayExpress() {
       type: "condominio",
       name: "",
       dueDay: 5,
-      amountBs: "",
       method: "zelle",
       notes: ""
     });
@@ -800,25 +802,31 @@ function PayExpress() {
   // ─── COMISIÓN ACTIVA ───────────────────────────────────
   const pm = payModal ? PAY_METHODS.find(p => p.id === payModal.method) : null;
   const commission = payModal ? COMMISSIONS[payModal.method] : null;
-  const amtUSD = payModal ? payModal.amountBs / currentRates.USD : 0;
-  // Monto de comisión en Bs y USD
-  const commAmtBs = payModal ? payModal.amountBs * (commission ? commission.total : 0) : 0;
-  const commAmtUSD = payModal ? amtUSD * (commission ? commission.total : 0) : 0;
-  const totalAmtBs = payModal ? payModal.amountBs + commAmtBs : 0;
-  const totalAmtUSD = payModal ? amtUSD + commAmtUSD : 0;
+  // Use payAmountBs entered by user at payment time
+  const effectiveAmtBs = payModal ? (parseFloat(payAmountBs) || 0) : 0;
+  const amtUSD = effectiveAmtBs > 0 ? effectiveAmtBs / currentRates.USD : 0;
+  const commAmtBs = effectiveAmtBs * (commission ? commission.total : 0);
+  const commAmtUSD = amtUSD * (commission ? commission.total : 0);
+  const totalAmtBs = effectiveAmtBs + commAmtBs;
+  const totalAmtUSD = amtUSD + commAmtUSD;
   function notifyPay(svcId) {
+    if (!payAmountBs || parseFloat(payAmountBs) <= 0) {
+      notify("Ingresa el monto del servicio", "error");
+      return;
+    }
     if (!payRef.trim()) {
       notify("Ingresa la referencia", "error");
       return;
     }
     setServices(p => p.map(s => s.id === svcId ? _objectSpread(_objectSpread({}, s), {}, {
       status: "notified",
-      ref: payRef
+      ref: payRef,
+      amountBs: parseFloat(payAmountBs)
     }) : s));
     setPayStep(3);
     const commLine = commission && commission.total > 0 ? "\u2022 *Comisi\xF3n (".concat(commission.label, ")*: ").concat(fmtBs(commAmtBs), " (~").concat(fmtUSD(commAmtUSD), ")\n\u2022 *Total enviado*: ").concat(fmtBs(totalAmtBs), " (~").concat(fmtUSD(totalAmtUSD), ")\n") : "";
     const notesLine = payModal.notes ? "\n*Instrucciones de Pago:*\n".concat(payModal.notes, "\n") : "";
-    const textTemplate = "*Hola PayExpress!*\n\n" + "Acabo de registrar el pago de mi servicio:\n\n" + "\u2022 *Servicio*: ".concat(payModal.name, "\n") + "\u2022 *Monto*: ".concat(fmtBs(payModal.amountBs), " (~").concat(fmtUSD(amtUSD), ")\n") + commLine + "\u2022 *M\xE9todo*: ".concat(pm.label, "\n") + "\u2022 *Referencia*: ".concat(payRef, "\n") + notesLine + "\nLes adjunto el capture del pago realizado por este medio.";
+    const textTemplate = "*Hola PayExpress!*\n\n" + "Acabo de registrar el pago de mi servicio:\n\n" + "\u2022 *Servicio*: ".concat(payModal.name, "\n") + "\u2022 *Tasa BCV USD*: ".concat(currentRates.USD.toFixed(2), " Bs.\n") + "\u2022 *Monto*: ".concat(fmtBs(effectiveAmtBs), " (~").concat(fmtUSD(amtUSD), ")\n") + commLine + "\u2022 *M\xE9todo*: ".concat(pm.label, "\n") + "\u2022 *Referencia*: ".concat(payRef, "\n") + notesLine + "\nLes adjunto el capture del pago realizado por este medio.";
     const waUrl = "https://wa.me/584126780566?text=".concat(encodeURIComponent(textTemplate));
     window.open(waUrl, "_blank");
     notify("Redirigiendo a WhatsApp...");
@@ -1181,7 +1189,7 @@ function PayExpress() {
       fontSize: 14,
       margin: "4px 0 0"
     }
-  }, "Gestiona tus pagos en Venezuela desde cualquier parte del mundo.")), /*#__PURE__*/React.createElement("div", {
+  }, "Gestiona tus obligaciones en Venezuela desde cualquier parte del mundo.")), /*#__PURE__*/React.createElement("div", {
     className: "stats-grid",
     style: {
       display: "grid",
@@ -1395,13 +1403,13 @@ function PayExpress() {
         color: "#fff",
         fontSize: 15
       }
-    }, fmtBs(s.amountBs)), /*#__PURE__*/React.createElement("div", {
+    }, s.amountBs > 0 ? fmtBs(s.amountBs) : "Monto variable"), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#9CA3AF",
         marginTop: 2
       }
-    }, fmtUSD(s.amountBs / currentRates.USD), " \xB7 ", fmtEUR(s.amountBs / currentRates.EUR))), /*#__PURE__*/React.createElement(Badge, {
+    }, s.amountBs > 0 ? (fmtUSD(s.amountBs / currentRates.USD) + " \xB7 " + fmtEUR(s.amountBs / currentRates.EUR)) : "Se ingresa al pagar")), /*#__PURE__*/React.createElement(Badge, {
       status: s.status
     }), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1413,6 +1421,7 @@ function PayExpress() {
         setPayModal(s);
         setPayStep(1);
         setPayRef("");
+        setPayAmountBs("");
       },
       style: S.btn("#4F46E5")
     }, "Pagar"), s.status === "notified" && /*#__PURE__*/React.createElement("button", {
@@ -1727,12 +1736,12 @@ function PayExpress() {
         color: "#fff",
         fontSize: 15
       }
-    }, fmtBs(s.amountBs)), /*#__PURE__*/React.createElement("div", {
+    }, s.amountBs > 0 ? fmtBs(s.amountBs) : "Monto variable"), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#9CA3AF"
       }
-    }, "~ ", fmtUSD(s.amountBs / currentRates.USD))), /*#__PURE__*/React.createElement(Badge, {
+    }, s.amountBs > 0 ? ("~ " + fmtUSD(s.amountBs / currentRates.USD)) : "Se ingresa al pagar")), /*#__PURE__*/React.createElement(Badge, {
       status: s.status
     }), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1747,6 +1756,7 @@ function PayExpress() {
         setPayModal(s);
         setPayStep(1);
         setPayRef("");
+        setPayAmountBs("");
       },
       style: S.btn("#4F46E5")
     }, "Pagar")));
@@ -2171,13 +2181,7 @@ function PayExpress() {
       name: e.target.value
     })),
     style: S.input
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
+  })), /*#__PURE__*/React.createElement(Field, {
     label: "D\xEDa de Pago (1 al 31)"
   }, /*#__PURE__*/React.createElement("input", {
     type: "number",
@@ -2190,16 +2194,6 @@ function PayExpress() {
     })),
     style: S.input
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Monto mensual base (Bs.)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    placeholder: "Monto en Bs.",
-    value: newSvc.amountBs,
-    onChange: e => setNewSvc(_objectSpread(_objectSpread({}, newSvc), {}, {
-      amountBs: e.target.value
-    })),
-    style: S.input
-  }))), /*#__PURE__*/React.createElement(Field, {
     label: "Canal de Pago Preferido"
   }, /*#__PURE__*/React.createElement("select", {
     value: newSvc.method,
@@ -2234,8 +2228,52 @@ function PayExpress() {
       setPayModal(null);
       setPayStep(1);
       setPayRef("");
+      setPayAmountBs("");
     }
   }, payStep === 1 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0D0F1C",
+      borderRadius: 12,
+      padding: "14px 16px",
+      marginBottom: 16,
+      border: "1px solid #4F46E5"
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "block",
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#A5B4FC",
+      marginBottom: 8,
+      letterSpacing: "0.01em"
+    }
+  }, "\uD83D\uDCB5 Monto del servicio este mes (Bs.)"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "Ej. 15000",
+    value: payAmountBs,
+    autoFocus: true,
+    onChange: e => setPayAmountBs(e.target.value),
+    style: {
+      width: "100%",
+      boxSizing: "border-box",
+      border: "1.5px solid #4F46E5",
+      borderRadius: 10,
+      padding: "12px 16px",
+      fontSize: 18,
+      fontWeight: 700,
+      fontFamily: "Inter, system-ui, sans-serif",
+      color: "#FFFFFF",
+      background: "#161B30",
+      outline: "none"
+    }
+  }), parseFloat(payAmountBs) > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#34D399",
+      marginTop: 6,
+      fontWeight: 500
+    }
+  }, "\u2248 ", fmtUSD(parseFloat(payAmountBs) / currentRates.USD), " \xB7 Tasa BCV: ", currentRates.USD.toFixed(2), " Bs.")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: pm.bg,
       padding: 18,
@@ -2307,7 +2345,7 @@ function PayExpress() {
       fontWeight: 600,
       fontSize: 13
     }
-  }, fmtBs(payModal.amountBs)), /*#__PURE__*/React.createElement("span", {
+  }, fmtBs(effectiveAmtBs)), /*#__PURE__*/React.createElement("span", {
     style: {
       color: "#9CA3AF",
       fontSize: 11,
@@ -2377,7 +2415,13 @@ function PayExpress() {
       marginTop: 2
     }
   }, "~ ", fmtUSD(totalAmtUSD))))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setPayStep(2),
+    onClick: () => {
+      if (!payAmountBs || parseFloat(payAmountBs) <= 0) {
+        alert("Por favor ingresa el monto del servicio este mes.");
+        return;
+      }
+      setPayStep(2);
+    },
     style: _objectSpread(_objectSpread({}, S.btn("#4F46E5")), {}, {
       width: "100%"
     })
@@ -2419,7 +2463,7 @@ function PayExpress() {
       fontWeight: 600,
       fontSize: 13
     }
-  }, fmtBs(payModal.amountBs)), /*#__PURE__*/React.createElement("span", {
+  }, fmtBs(effectiveAmtBs)), /*#__PURE__*/React.createElement("span", {
     style: {
       color: "#9CA3AF",
       fontSize: 11,
@@ -2557,6 +2601,7 @@ function PayExpress() {
       setPayModal(null);
       setPayStep(1);
       setPayRef("");
+      setPayAmountBs("");
     },
     style: _objectSpread(_objectSpread({}, S.btn("#111827")), {}, {
       width: "100%"
